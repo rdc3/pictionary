@@ -15,6 +15,7 @@ import { VerifyEmailComponent } from './admin/verify-email/verify-email.componen
 import { AddWordsComponent } from './admin/add-words/add-words.component';
 import { DefaultPageComponent } from './game/default-page/default-page.component';
 import { CanvasComponent } from './game/canvas/canvas.component';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
 
 
 const firebaseConfig = {
@@ -46,7 +47,7 @@ const firebaseConfig = {
     // AngularFireAuthGuard,
     BrowserAnimationsModule,
     AngularFireAuthModule,
-
+    AngularFirestoreModule,
     MatToolbarModule,
     MatSidenavModule,
     MatListModule,

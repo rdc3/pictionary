@@ -1,3 +1,4 @@
+import { DbService } from './../../services/db.service';
 import { CanvasService, ColorPicked } from './../../services/canvas.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import * as p5 from 'p5';
@@ -16,7 +17,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   private colorWheel;
   private colorPicked: ColorPicked;
 
-  constructor(private canvasService: CanvasService) {
+  constructor(private canvasService: CanvasService, private db: DbService) {
     window.onresize = this.onWindowResize;
     this.canvasService.colorPicked$.subscribe(color => {
         this.colorPicked = color;
