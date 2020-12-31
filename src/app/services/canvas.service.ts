@@ -25,6 +25,10 @@ export class CanvasService {
     this.isDrawing = false;
     this.saveDrawing();
   }
+
+  clearCanvas() {
+    this.canvasDrawing = [];
+  }
   
   private saveDrawing() {
     console.log('saving:', this.canvasDrawing);

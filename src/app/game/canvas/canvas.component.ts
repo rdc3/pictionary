@@ -69,9 +69,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
       p.image(this.colorWheel, 5, 5);
       if (p.mouseIsPressed) {
         if (p.mouseButton === p.LEFT) {
-          if (p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height) {
-            this.newColorPicked(this.colorWheel.get(p.mouseX, p.mouseY));
-          }
+
           // p.line(p.mouseX, p.mouseY, p.pmouseX, p.pmouseY);
           if (this.canvasService.isDrawing) {
             let point = null;
@@ -110,6 +108,10 @@ export class CanvasComponent implements OnInit, OnDestroy {
     p.mousePressed = () => {
       if (!(p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height)) {
         this.canvasService.startDrawing();
+      } else {
+        if (p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height) {
+          this.newColorPicked(this.colorWheel.get(p.mouseX, p.mouseY));
+        }
       }
     }
     p.mouseReleased = () => {
