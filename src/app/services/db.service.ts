@@ -40,4 +40,5 @@ export class DbService {
   updateCanvas(c: Canvas) {
     this.canvasDoc.update(c);
   }
+  
 }
