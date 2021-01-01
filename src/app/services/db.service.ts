@@ -31,14 +31,14 @@ export class DbService {
       console.log('roundInfo:', this.roundInfo);
     });
   }
-  updateGameInfo(gI: GameInfo) {
-    this.gameInfoDoc.update(gI);
+  updateGameInfo() {
+    this.gameInfoDoc.update(this.gameInfo);
   }
-  updateRoundInfo(rI: RoundInfo) {
-    this.roundInfoDoc.update(rI);
+  updateRoundInfo() {
+    this.roundInfoDoc.update(this.roundInfo);
   }
-  updateCanvas(c: Canvas) {
-    this.canvasDoc.update(c);
+  updateCanvas() {
+    this.canvasDoc.update(this.canvas);
   }
-  
+
 }

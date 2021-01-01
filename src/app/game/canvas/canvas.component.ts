@@ -1,7 +1,8 @@
 import { DbService } from './../../services/db.service';
-import { CanvasService, ColorPicked } from './../../services/canvas.service';
+import { CanvasService } from './../../services/canvas.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import * as p5 from 'p5';
+import { ColorPicked } from 'src/app/types/types';
 
 @Component({
   selector: 'app-canvas',
@@ -20,7 +21,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   constructor(private canvasService: CanvasService, private db: DbService) {
     window.onresize = this.onWindowResize;
     this.canvasService.colorPicked$.subscribe(color => {
-        this.colorPicked = color;
+      this.colorPicked = color;
     });
   }
 
@@ -81,22 +82,23 @@ export class CanvasComponent implements OnInit, OnDestroy {
                 color: this.colorPicked
               };
             }
-            if (point)
+            if (point) {
               this.canvasService.currentPath.push(point);
+            }
           }
           p.strokeWeight(4);
           p.noFill();
           if (this.canvasService.canvasDrawing.length > 0) {
-            var keys = Object.keys(this.canvasService.canvasDrawing);
-            for (var i = 0; i < this.canvasService.canvasDrawing.length; i++) {
-              var path = this.canvasService.canvasDrawing[keys[i]];
-              if (path) {
+            const keys = Object.keys(this.canvasService.canvasDrawing);
+            for (let i = 0; i < this.canvasService.canvasDrawing.length; i++) {
+              const paths = this.canvasService.canvasDrawing[keys[i]];
+              if (paths) {
                 p.beginShape();
-                for (var j = 0; j < path.length; j++) {
-                  let col = path[j].color;
-                  p.stroke([col.r,col.g,col.b,col.a]);
-                  var mapX = p.map(path[j].x, 0, this.canvasService.artistCanvasWidth, 0, p.windowWidth)
-                  var mapY = p.map(path[j].y, 0, this.canvasService.artistCanvasWidth, 0, p.windowWidth)
+                for (const path of paths) {
+                  const col = path.color;
+                  p.stroke([col.r, col.g, col.b, col.a]);
+                  const mapX = p.map(path.x, 0, this.canvasService.artistCanvasWidth, 0, p.windowWidth);
+                  const mapY = p.map(path.y, 0, this.canvasService.artistCanvasWidth, 0, p.windowWidth);
                   p.vertex(mapX, mapY);
                 }
                 p.endShape();
@@ -120,7 +122,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
       // modulo math forces the color to swap through the array provided
       // p.stroke([this.colorPicked.r, this.colorPicked.b, this.colorPicked.g, this.colorPicked.a]);
     };
-   
+
     p.keyPressed = () => {
       if (p.key === 'c') {
         // window.location.reload();
@@ -133,7 +135,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
       this.colorPicked.b !== newColor[1] &&
       this.colorPicked.g !== newColor[2] &&
       this.colorPicked.a !== newColor[3]) {
-      this.canvasService.colorPicked$.next({r:newColor[0],b:newColor[1],g:newColor[2],a:newColor[3]});
+      this.canvasService.colorPicked$.next({ r: newColor[0], b: newColor[1], g: newColor[2], a: newColor[3] });
       console.log(`color is now ${[this.colorPicked.r, this.colorPicked.b, this.colorPicked.g, this.colorPicked.a]}`);
     }
   }

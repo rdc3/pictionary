@@ -1,1 +1,32 @@
-<app-canvas>
+<form [formGroup]="playerSetup" (ngSubmit)="onSubmit()" #form="ngForm">
+    <p>
+        <mat-form-field appearance="outline" class="margin-right">
+            <mat-label>NickName</mat-label>
+            <input name="nickName" matInput [formControl]="nickNameControl" placeholder="Enter your nickname">
+            <mat-error *ngIf="nickNameControl.invalid">Please enter a nickname with a maximum of 15 characters</mat-error>
+        </mat-form-field>
+        <mat-checkbox name="useDisplayNameAsNickName" (change)="useDisplayNameAsNickName($event.checked)" [labelPosition]="'after'">
+            Use <b>{{displayName}}</b> as nickname.
+        </mat-checkbox>
+    </p>
+    <p>
+        <mat-form-field appearance="outline">
+            <mat-label>Number of Players</mat-label>
+            <input type="number" matInput [formControl]="maxPlayersControl" placeholder=" > 1">
+            <mat-error *ngIf="maxPlayersControl.invalid">Please enter at least 2 players and a maximum of 10 players.</mat-error>
+        </mat-form-field>
+    </p>
+    <p>
+        <mat-form-field appearance="outline">
+            <mat-label>Number of Rounds</mat-label>
+            <input type="number" matInput [formControl]="maxRoundsControl" placeholder=" > 0">
+            <mat-error *ngIf="maxRoundsControl.invalid">Please enter at least 1 round and a maximum of 10 rounds.</mat-error>
+        </mat-form-field>
+    </p>
+    <p>
+        <button [disabled]="playerSetup.invalid" type="submit" mat-raised-button>play</button>
+    </p>
+</form>
+
+<app-canvas *ngIf="!displayForm"></app-canvas>
+<!-- <app-canvas></app-canvas> -->
