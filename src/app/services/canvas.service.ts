@@ -1,3 +1,4 @@
+import { DbService } from 'src/app/services/db.service';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ColorPicked } from '../types/types';
@@ -14,7 +15,9 @@ export class CanvasService {
   canvasDrawing = [];
   artistCanvasWidth = 1900;
 
-  constructor() { }
+  constructor(private db: DbService) {
+    this.db.canvas$.subscribe(canvas => this.artistCanvasWidth = canvas.canvasWidth);
+   }
 
   startDrawing() {
     this.isDrawing = true;

@@ -1,3 +1,4 @@
+import { BehaviorSubject, Subject } from 'rxjs';
 import { DbService } from './db.service';
 import { GameState, Roles } from './../types/types';
 import { Injectable } from '@angular/core';
@@ -8,17 +9,30 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class GameService {
-  player: Player;
+  player: Player = this.defaultPlayer();
+  gameState$: Subject<GameState> = new Subject();
   gameState: GameState = GameState._1_init;
+  player$: BehaviorSubject<Player> = new BehaviorSubject (this.defaultPlayer());  // to notify the change in player to other components
+  attendance$: BehaviorSubject<number> = new BehaviorSubject (0);
   constructor(private authService: AuthService, private dbService: DbService) {
-    console.log('game constructor');
-    this.defaultPlayer();
+    this.initPlayer();
+    this.gameState$.subscribe(val => this.gameState = val);
     this.dbService.gameInfoDoc.valueChanges().subscribe(gameInfo => {
-      this.gameState = gameInfo.gameState;
+      this.gameState$.next(gameInfo.gameState);
+      const updatedPlayer = gameInfo.players.find(dbPlayer => dbPlayer.id === this.player.id);
+      if (updatedPlayer) {
+        console.log('error: ', updatedPlayer, this.player);
+        if (JSON.stringify(updatedPlayer) !== JSON.stringify(this.player)) {
+          this.player = JSON.parse(JSON.stringify(updatedPlayer));
+          this.playerUpdated();
+        }
+      }
+      this.attendance$.next((+gameInfo.playerCount) / (+gameInfo.maxPlayers) * 100);
     });
   }
+
   private defaultPlayer() {
-    this.player = {
+    return {
       id: '0',
       isModerator: false,
       isPlaying: false,
@@ -27,10 +41,14 @@ export class GameService {
       score: 0,
       type: Roles.guesser
     };
+  }
+  private initPlayer() {
+    this.player = this.defaultPlayer();
     this.setPlayerId();
     this.setPlayerName();
-
+    this.playerUpdated();
   }
+
   private setPlayerId() {
     if (localStorage.getItem('playerId')) {
       this.player.id = String(localStorage.getItem('playerId'));
@@ -63,15 +81,21 @@ export class GameService {
     }
   }
 
+  private playerUpdated() {
+    this.player$.next(this.player);
+  }
+
   joinGame(intInfo: { nickName: string, maxPlayers: number, maxRounds: number }) {
     this.player.name = intInfo.nickName;
     this.dbService.gameInfo.playerCount += 1;
     if (this.gameState === GameState._1_init) {
       this.player.isModerator = true;
+      this.player.isPlaying = true;
       this.player.type = Roles.artist;
       this.dbService.gameInfo.gameState = GameState._2_joining;
-      this.dbService.gameInfo.maxPlayers = intInfo.maxPlayers;
-      this.dbService.gameInfo.maxRounds = intInfo.maxRounds;
+      this.dbService.gameInfo.maxPlayers = +intInfo.maxPlayers;
+      this.dbService.gameInfo.maxRounds = +intInfo.maxRounds;
+      this.dbService.gameInfo.players = [];
       this.dbService.roundInfo.roundNumber = 1;
       this.dbService.roundInfo.notYetArtist = [];
     }
@@ -80,9 +104,11 @@ export class GameService {
         this.dbService.gameInfo.gameState = GameState._3_playing;
       }
       this.dbService.roundInfo.notYetArtist.push(this.player.id);
+      this.player.isPlaying = true;
     }
     this.dbService.updateGameInfo();
     this.dbService.updateRoundInfo();
+    this.dbService.addPlayer(this.player);
   }
 
   roundEnded() {
@@ -100,6 +126,12 @@ export class GameService {
   }
 
   gameEnded(byReset: boolean = false) {
+    if (byReset) {
+      this.dbService.gameInfo.gameState = GameState._1_init;
+    } else {
+      this.dbService.gameInfo.gameState = GameState._4_end;
+    }
+    this.dbService.updateGameInfo();
     console.log('game ended..');
   }
 }

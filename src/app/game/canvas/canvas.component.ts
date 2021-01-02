@@ -1,8 +1,10 @@
+import { Roles } from './../../types/types';
+import { GameService } from './../../services/game.service';
 import { DbService } from './../../services/db.service';
 import { CanvasService } from './../../services/canvas.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import * as p5 from 'p5';
-import { ColorPicked } from 'src/app/types/types';
+import { ColorPicked, GameState } from 'src/app/types/types';
 
 @Component({
   selector: 'app-canvas',
@@ -15,17 +17,21 @@ export class CanvasComponent implements OnInit, OnDestroy {
   private sw = 4;
   private canvasWidth = 200;
   private canvasHeight = 200;
+  public innerWidth: any;
   private colorWheel;
   private colorPicked: ColorPicked;
+  private isEditable = false;
 
-  constructor(private canvasService: CanvasService, private db: DbService) {
+  constructor(private canvasService: CanvasService, private db: DbService, private gameService: GameService) {
     window.onresize = this.onWindowResize;
     this.canvasService.colorPicked$.subscribe(color => {
       this.colorPicked = color;
     });
+    this.gameService.player$.subscribe(player => this.isEditable = player.type === Roles.artist);
   }
 
   ngOnInit() {
+    this.innerWidth = window.innerWidth;
     this.createCanvas();
   }
 
@@ -52,9 +58,12 @@ export class CanvasComponent implements OnInit, OnDestroy {
     }
     // f5 setup
     p.setup = () => {
-      this.canvasWidth = p.windowWidth * 3 / 4
-      this.canvasService.artistCanvasWidth = this.canvasWidth;
-      this.canvasHeight = p.windowWidth * 1 / 3
+      this.canvasWidth = p.windowWidth * 3 / 4;
+      this.canvasHeight = p.windowWidth * 1 / 3;
+      if (this.isEditable) {
+        this.db.canvas.canvasWidth = this.canvasWidth;
+        this.db.updateCanvas();
+      }
       p.createCanvas(this.canvasWidth, this.canvasHeight).parent('sketch-holder');
       p.background(0);
       p.strokeWeight(this.sw);
@@ -68,14 +77,16 @@ export class CanvasComponent implements OnInit, OnDestroy {
     // f5 draw
     p.draw = () => {
       // p.background(0);
-      p.image(this.colorWheel, 5, 5);
+      if (this.isEditable) {
+        p.image(this.colorWheel, 5, 5);
+      }
       if (p.mouseIsPressed) {
         if (p.mouseButton === p.LEFT) {
 
           // p.line(p.mouseX, p.mouseY, p.pmouseX, p.pmouseY);
           if (this.canvasService.isDrawing) {
             let point = null;
-            if (!(p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height)) {
+            if (!(p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height) && this.isEditable) {
               point = {
                 x: p.mouseX,
                 y: p.mouseY,
@@ -109,10 +120,10 @@ export class CanvasComponent implements OnInit, OnDestroy {
       }
     }
     p.mousePressed = () => {
-      if (!(p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height)) {
+      if (!(p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height) && this.isEditable) {
         this.canvasService.startDrawing();
       } else {
-        if (p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height) {
+        if (p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height && this.isEditable) {
           this.newColorPicked(this.colorWheel.get(p.mouseX, p.mouseY));
         }
       }

@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   MatButtonModule, MatCardModule, MatCheckboxModule, MatFormFieldModule, MatIconModule,
-  MatInputModule, MatListModule, MatSidenavModule, MatToolbarModule
+  MatInputModule, MatListModule, MatProgressBarModule, MatSidenavModule, MatToolbarModule
 } from '@angular/material';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireAuthModule } from '@angular/fire/auth';
@@ -20,6 +20,7 @@ import { DefaultPageComponent } from './game/default-page/default-page.component
 import { CanvasComponent } from './game/canvas/canvas.component';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormComponent } from './game/form/form.component';
 
 
 const firebaseConfig = {
@@ -43,6 +44,7 @@ const firebaseConfig = {
     AddWordsComponent,
     DefaultPageComponent,
     CanvasComponent,
+    FormComponent,
   ],
   imports: [
     BrowserModule,
@@ -60,6 +62,7 @@ const firebaseConfig = {
     MatListModule,
     MatInputModule,
     MatIconModule,
+    MatProgressBarModule,
     MatToolbarModule,
     MatSidenavModule,
     ReactiveFormsModule
