@@ -1,7 +1,8 @@
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
+
 import { DbService } from './db.service';
 import { GameState, Roles } from './../types/types';
-import { Injectable } from '@angular/core';
 import { Player } from '../types/types';
 import { AuthService } from './auth.service';
 
@@ -12,12 +13,13 @@ export class GameService {
   player: Player = this.defaultPlayer();
   gameState$: Subject<GameState> = new Subject();
   gameState: GameState = GameState._1_init;
-  player$: BehaviorSubject<Player> = new BehaviorSubject (this.defaultPlayer());  // to notify the change in player to other components
-  attendance$: BehaviorSubject<number> = new BehaviorSubject (0);
+  player$: BehaviorSubject<Player> = new BehaviorSubject(this.defaultPlayer());  // to notify the change in player to other components
+  attendance$: BehaviorSubject<number> = new BehaviorSubject(0);
   constructor(private authService: AuthService, private dbService: DbService) {
     this.initPlayer();
     this.gameState$.subscribe(val => this.gameState = val);
-    this.dbService.gameInfoDoc.valueChanges().subscribe(gameInfo => {
+    
+    this.dbService.gameInfo$.subscribe(gameInfo => {
       this.gameState$.next(gameInfo.gameState);
       const updatedPlayer = gameInfo.players.find(dbPlayer => dbPlayer.id === this.player.id);
       if (updatedPlayer) {
@@ -42,6 +44,7 @@ export class GameService {
       type: Roles.guesser
     };
   }
+
   private initPlayer() {
     this.player = this.defaultPlayer();
     this.setPlayerId();
@@ -133,5 +136,9 @@ export class GameService {
     }
     this.dbService.updateGameInfo();
     console.log('game ended..');
+  }
+
+  initWords() {
+    
   }
 }

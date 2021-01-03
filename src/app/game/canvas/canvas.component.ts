@@ -1,10 +1,13 @@
-import { Roles } from './../../types/types';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import * as p5 from 'p5';
+
+import { ColorPicked } from 'src/app/types/types';
+import { Roles, GuessedWord } from './../../types/types';
 import { GameService } from './../../services/game.service';
 import { DbService } from './../../services/db.service';
 import { CanvasService } from './../../services/canvas.service';
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import * as p5 from 'p5';
-import { ColorPicked, GameState } from 'src/app/types/types';
+import { MatSnackBar } from '@angular/material';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-canvas',
@@ -16,20 +19,39 @@ export class CanvasComponent implements OnInit, OnDestroy {
   private p5;
   private sw = 4;
   private canvasWidth = 200;
-  private canvasHeight = 200;
+  canvasHeight = 200;
   public innerWidth: any;
   private colorWheel;
   private colorPicked: ColorPicked;
   private isEditable = false;
-
-  constructor(private canvasService: CanvasService, private db: DbService, private gameService: GameService) {
+  guessInput = new FormControl('');
+  hint = '';
+  guessedWords: GuessedWord[] = [];
+  displayedColumns = ['by', 'word'];
+  constructor(private canvasService: CanvasService,
+              private db: DbService,
+              private gameService: GameService,
+              private snackBar: MatSnackBar
+  ) {
     window.onresize = this.onWindowResize;
     this.canvasService.colorPicked$.subscribe(color => {
       this.colorPicked = color;
     });
+    this.canvasService.guessedWords$.subscribe(words => {
+      words.forEach(gW => {
+        const player = this.db.gameInfo.players.find(p => p.id === gW.by);
+        gW.by = (player) ? player.name : gW.by;
+      });
+      console.log('words:', words);
+      this.guessedWords = words;
+      });
     this.gameService.player$.subscribe(player => this.isEditable = player.type === Roles.artist);
   }
 
+  newGuess() {
+    console.log('data:', this.guessInput.value);
+    this.canvasService.newGuess(this.guessInput.value);
+  }
   ngOnInit() {
     this.innerWidth = window.innerWidth;
     this.createCanvas();
@@ -40,7 +62,9 @@ export class CanvasComponent implements OnInit, OnDestroy {
     console.log('gear-destroy');
   }
   private onWindowResize = (e) => {
-    // this.p5.resizeCanvas(this.p5.windowWidth, this.p5.windowHeight);
+    this.snackBar.open('Refresh your page to resize the canvas', 'OK', {
+      duration: 5000,
+    });
   }
   private createCanvas = () => {
     console.log('creating canvas');
@@ -54,17 +78,19 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
   private drawing = (p: any) => {
     p.preload = () => {
-      this.colorWheel = p.loadImage("assets/colorwheel.png");
+      this.colorWheel = p.loadImage('assets/colorwheel.png');
     }
     // f5 setup
     p.setup = () => {
-      this.canvasWidth = p.windowWidth * 3 / 4;
+      this.canvasWidth = p.windowWidth * 2 / 3;
       this.canvasHeight = p.windowWidth * 1 / 3;
+      const colorWheelSize = (this.canvasWidth > 700) ? 150 : this.canvasWidth / 5;
+      this.colorWheel.resize(colorWheelSize, colorWheelSize);
       if (this.isEditable) {
         this.db.canvas.canvasWidth = this.canvasWidth;
         this.db.updateCanvas();
       }
-      p.createCanvas(this.canvasWidth, this.canvasHeight).parent('sketch-holder');
+      p.createCanvas(this.canvasWidth, this.canvasHeight).parent('canvas-container');
       p.background(0);
       p.strokeWeight(this.sw);
 

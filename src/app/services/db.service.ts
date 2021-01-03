@@ -1,7 +1,8 @@
-import { GameInfo, RoundInfo, Player } from './../types/types';
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
+import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
+
+import { GameInfo, RoundInfo, Player, WordsCollection } from './../types/types';
 import { Canvas } from '../types/types';
 
 @Injectable({
@@ -17,6 +18,10 @@ export class DbService {
   roundInfoDoc: AngularFirestoreDocument<RoundInfo>;
   roundInfo$: Observable<RoundInfo>;
   roundInfo: RoundInfo;
+  defaultWordsDoc: AngularFirestoreDocument<WordsCollection>;
+  defaultWords$: Observable<WordsCollection>;
+  defaultWords: WordsCollection;
+
   constructor(firestore: AngularFirestore) {
     this.canvasDoc = firestore.doc<Canvas>('Pictionary/canvas');
     this.canvas$ = this.canvasDoc.valueChanges();
@@ -35,6 +40,12 @@ export class DbService {
     this.roundInfo$.subscribe(val => {
       this.roundInfo = val;
       console.log('roundInfo:', this.roundInfo);
+    });
+    this.defaultWordsDoc = firestore.doc<WordsCollection>('Pictionary/defaultWords');
+    this.defaultWords$ = this.defaultWordsDoc.valueChanges();
+    this.defaultWords$.subscribe(val => {
+      this.defaultWords = val;
+      console.log('defaultWords:', this.defaultWords);
     });
   }
   updateGameInfo() {

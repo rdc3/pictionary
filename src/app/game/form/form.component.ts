@@ -4,9 +4,9 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { map } from 'rxjs/Operators';
 
 import { GameService } from './../../services/game.service';
-import { AuthService } from 'src/app/services/auth.service';
+import { AuthService } from './../../services/auth.service';
 import { DbService } from './../../services/db.service';
-import { GameState } from 'src/app/types/types';
+import { GameState } from './../../types/types';
 
 @Component({
   selector: 'app-form',

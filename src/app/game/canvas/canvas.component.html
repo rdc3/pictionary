@@ -1,1 +1,43 @@
-<div id="sketch-holder"></div>
+
+<div fxLayout='row' class="zero">
+
+    <div fxFlex="75%" class="one">
+        <div id="canvas-container"></div>
+    </div>
+    <div fxFlex="30%" class="two">
+        <mat-table [dataSource]="guessedWords" class="mat-elevation-z8">
+            <!-- Position Column -->
+            <ng-container matColumnDef="by">
+              <mat-header-cell *matHeaderCellDef> By </mat-header-cell>
+              <mat-cell *matCellDef="let element"> {{element.by}} </mat-cell>
+            </ng-container>
+          
+            <!-- Name Column -->
+            <ng-container matColumnDef="word">
+              <mat-header-cell *matHeaderCellDef> Guessed word </mat-header-cell>
+              <mat-cell *matCellDef="let element"> {{element.word}} </mat-cell>
+            </ng-container>
+          
+            <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+          </mat-table>
+    </div>  
+  </div>
+
+
+  
+<div id="button-cluster" >
+    <button class="ml-3" mat-mini-fab color="primary" aria-label="Reset button" matTooltip="Reset Game">
+        <mat-icon>restore</mat-icon>
+    </button>
+    <button class="ml-1" mat-mini-fab color="primary" aria-label="Clear canvas button" matTooltip="Clear canvas">
+        <mat-icon>delete</mat-icon>
+    </button>
+    <form (ngSubmit)="newGuess()">
+        <mat-form-field class="ml-4" appearance="legacy">
+            <input matInput [formControl]="guessInput" placeholder=" Guess the word..">
+            <mat-icon matSuffix>send</mat-icon>
+            <mat-hint>{{hint}}</mat-hint>
+        </mat-form-field>
+    </form>
+</div>

@@ -1,7 +1,10 @@
-import { DbService } from 'src/app/services/db.service';
+import { GameService } from './game.service';
+import { GuessedWord } from './../types/types';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+
 import { ColorPicked } from '../types/types';
+import { DbService } from './../services/db.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,13 +13,17 @@ import { ColorPicked } from '../types/types';
 export class CanvasService {
 
   colorPicked$: BehaviorSubject<ColorPicked> = new BehaviorSubject({ r: 0, b: 0, g: 0, a: 0 });
+  guessedWords$: BehaviorSubject<GuessedWord[]> = new BehaviorSubject([]);
   isDrawing = false;
   currentPath = [];
   canvasDrawing = [];
   artistCanvasWidth = 1900;
 
-  constructor(private db: DbService) {
-    this.db.canvas$.subscribe(canvas => this.artistCanvasWidth = canvas.canvasWidth);
+  constructor(private db: DbService, private gameService: GameService) {
+    this.db.canvas$.subscribe(canvas => {
+      this.artistCanvasWidth = canvas.canvasWidth;
+      this.guessedWords$.next(canvas.guessedWords);
+    });
    }
 
   startDrawing() {
@@ -36,6 +43,11 @@ export class CanvasService {
 
   private saveDrawing() {
     console.log('saving:', this.canvasDrawing);
+  }
+
+  newGuess(guessedWord: string) {
+    this.db.canvas.guessedWords.push({ by: this.gameService.player.id, word: guessedWord });
+    this.db.updateCanvas();
   }
 }
 
