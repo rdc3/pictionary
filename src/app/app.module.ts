@@ -13,12 +13,7 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AppRoutingModule } from './app-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormComponent } from './game/form/form.component';
-import {FlexLayoutModule, LayoutAlignStyleBuilder} from "@angular/flex-layout";
-
-import {
-  StyleUtils, StylesheetMap, MediaMarshaller, ɵMatchMedia, BreakPointRegistry,
-  PrintHook, LayoutStyleBuilder, FlexStyleBuilder, ShowHideStyleBuilder, FlexOrderStyleBuilder
-} from "@angular/flex-layout";
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './admin/login/login.component';
@@ -83,8 +78,8 @@ const firebaseConfig = {
   ],
   providers: [
     AngularFireAuthGuard,
-    StyleUtils, StylesheetMap, MediaMarshaller, ɵMatchMedia, LayoutAlignStyleBuilder,
-    BreakPointRegistry, PrintHook, LayoutStyleBuilder, FlexStyleBuilder, ShowHideStyleBuilder, FlexOrderStyleBuilder
+    // StyleUtils, StylesheetMap, MediaMarshaller, ɵMatchMedia, LayoutAlignStyleBuilder,
+    // BreakPointRegistry, PrintHook, LayoutStyleBuilder, FlexStyleBuilder, ShowHideStyleBuilder, FlexOrderStyleBuilder
   ],
   bootstrap: [AppComponent]
 })
