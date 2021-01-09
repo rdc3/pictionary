@@ -847,6 +847,8 @@ AppModule = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         ],
         providers: [
             _angular_fire_auth_guard__WEBPACK_IMPORTED_MODULE_1__["AngularFireAuthGuard"],
+            _angular_flex_layout__WEBPACK_IMPORTED_MODULE_12__["StyleUtils"], _angular_flex_layout__WEBPACK_IMPORTED_MODULE_12__["StylesheetMap"], _angular_flex_layout__WEBPACK_IMPORTED_MODULE_12__["MediaMarshaller"], _angular_flex_layout__WEBPACK_IMPORTED_MODULE_12__["ɵMatchMedia"], _angular_flex_layout__WEBPACK_IMPORTED_MODULE_12__["LayoutAlignStyleBuilder"],
+            _angular_flex_layout__WEBPACK_IMPORTED_MODULE_12__["BreakPointRegistry"], _angular_flex_layout__WEBPACK_IMPORTED_MODULE_12__["PrintHook"], _angular_flex_layout__WEBPACK_IMPORTED_MODULE_12__["LayoutStyleBuilder"], _angular_flex_layout__WEBPACK_IMPORTED_MODULE_12__["FlexStyleBuilder"], _angular_flex_layout__WEBPACK_IMPORTED_MODULE_12__["ShowHideStyleBuilder"], _angular_flex_layout__WEBPACK_IMPORTED_MODULE_12__["FlexOrderStyleBuilder"]
         ],
         bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_13__["AppComponent"]]
     })
