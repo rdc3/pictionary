@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { DbService } from './../../services/db.service';
+import { DataStoreService } from './../../services/data-store.service';
 import { GameService } from './../../services/game.service';
 import { GameInfo, GameState } from './../../types/types';
 
@@ -12,12 +12,21 @@ import { GameInfo, GameState } from './../../types/types';
 export class DefaultPageComponent implements OnInit {
 
   displayForm = true;
-  constructor(private dbService: DbService, private gameService: GameService) {
-    this.dbService.gameInfo$.subscribe((gameInfo: GameInfo) => {
+  displayResetButton = false;
+  isModerator = false;
+  constructor(private gameService: GameService, private dStoreS: DataStoreService) {
+    this.dStoreS.gameInfo$.subscribe((gameInfo: GameInfo) => {
       this.displayForm = (gameInfo.gameState < GameState._3_playing);
-      console.log('display form:', this.displayForm, gameInfo.gameState, GameState._2_joining);
+      this.displayResetButton = (gameInfo.gameState > GameState._1_init && this.displayForm);
+    });
+    this.dStoreS.player$.subscribe(player => {
+      this.isModerator = player.isModerator;
     });
   }
   ngOnInit() {
   }
+  resetGame() {
+    this.gameService.resetGame();
+  }
+
 }

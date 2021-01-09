@@ -1,0 +1,43 @@
+p{
+    margin:auto;
+}
+::ng-deep.blue-tooltip{
+    // background-color:rgba(211, 211, 211, 0.9);
+    // top: 25px !important;
+    height: 30px !important;
+    line-height: 15px !important;
+    // border-radius: 5px;
+    margin-top: 1px;
+    // font-weight: 500;
+    color: #eee;
+    background: rgba(30, 61, 163, 0.6);
+    display: inline-block;
+    // padding: 15px;
+    border-radius: 35px;
+}
+.table-container {
+    margin-top: 10px;
+    max-height: 300px;
+    overflow: auto;
+  }
+  /* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey; 
+    border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: rgb(145, 145, 145); 
+    border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(177, 177, 177); 
+}

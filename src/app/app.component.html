@@ -1,4 +1,4 @@
-<mat-toolbar color="primary">
+<mat-toolbar *ngIf="!fullscreen" color="primary">
   <mat-toolbar-row>
     <button mat-icon-button>
       <mat-icon (click)="sidenav.toggle()">menu</mat-icon>
@@ -22,7 +22,7 @@
     </mat-toolbar-row> -->
 </mat-toolbar>
 
-<mat-sidenav-container>
+<mat-sidenav-container class="hide-overflow">
   <mat-sidenav #sidenav>
     <mat-nav-list>
 
@@ -36,9 +36,9 @@
 
     </mat-nav-list>
   </mat-sidenav>
-  <mat-sidenav-content>
+  <mat-sidenav-content class="hide-overflow">
     <div style="height: 88vh;">
-      <mat-card class="outer-container">
+      <mat-card class="outer-container hide-overflow">
         <router-outlet></router-outlet>
       </mat-card>
     </div>

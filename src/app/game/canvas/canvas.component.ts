@@ -1,8 +1,10 @@
+import { PopupNotificationService } from './../../services/popup-notification.service';
+import { DataStoreService } from './../../services/data-store.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import * as p5 from 'p5';
 
-import { ColorPicked } from 'src/app/types/types';
-import { Roles, GuessedWord } from './../../types/types';
+import { Color, GameState } from 'src/app/types/types';
+import { Roles, GuessedWord, Point, Line, RoundInfo } from './../../types/types';
 import { GameService } from './../../services/game.service';
 import { DbService } from './../../services/db.service';
 import { CanvasService } from './../../services/canvas.service';
@@ -22,72 +24,108 @@ export class CanvasComponent implements OnInit, OnDestroy {
   canvasHeight = 200;
   public innerWidth: any;
   private colorWheel;
-  private colorPicked: ColorPicked;
-  private isEditable = false;
+  private colorWheelSize;
+  private colorPicked: Color;
+  isEditable = false;
+  isModerator = false;
   guessInput = new FormControl('');
   hint = '';
-  guessedWords: GuessedWord[] = [];
   displayedColumns = ['by', 'word'];
-  constructor(private canvasService: CanvasService,
-              private db: DbService,
-              private gameService: GameService,
-              private snackBar: MatSnackBar
+  playerRole = 'guesser';
+  playerName = '';
+  message = '';
+  gameOver = false;
+  guessedWords: GuessedWord[] = [];
+  gamePaused = false;
+  p: any;
+  private distances = [];
+  private maxDistance;
+  private spacer;
+  constructor(
+    private canvasService: CanvasService,
+    private db: DbService,
+    private gameService: GameService,
+    private dStoreS: DataStoreService,
+    private popup: PopupNotificationService
   ) {
     window.onresize = this.onWindowResize;
-    this.canvasService.colorPicked$.subscribe(color => {
+    this.dStoreS.colorPicked$.subscribe(color => {
       this.colorPicked = color;
     });
-    this.canvasService.guessedWords$.subscribe(words => {
-      words.forEach(gW => {
-        const player = this.db.gameInfo.players.find(p => p.id === gW.by);
-        gW.by = (player) ? player.name : gW.by;
-      });
-      console.log('words:', words);
-      this.guessedWords = words;
-      });
-    this.gameService.player$.subscribe(player => this.isEditable = player.type === Roles.artist);
+    this.dStoreS.message$.subscribe(m => this.message = m);
+    this.dStoreS.player$.subscribe(player => {
+      this.isEditable = player.type === Roles.artist;
+      this.playerRole = (this.isEditable) ? 'artist' : 'guesser';
+      this.isModerator = player.isModerator;
+      this.playerName = player.name;
+    });
+    this.dStoreS.gameState$.subscribe(gameState => {
+      this.setGameOverState(gameState);
+    });
+    this.dStoreS.guessedWords$.subscribe(words => this.guessedWords = words.reverse());
+    this.dStoreS.roundInfo$.subscribe(roundInfo => this.gamePaused = roundInfo.paused);
+  }
+
+  resetGame() {
+    this.gameService.resetGame();
   }
 
   newGuess() {
-    console.log('data:', this.guessInput.value);
+    console.log('new guess:', this.guessInput.value);
     this.canvasService.newGuess(this.guessInput.value);
+    this.guessInput.setValue('');
+  }
+
+  clearCanvas() {
+    this.canvasService.clearCanvas();
+  }
+
+  pauseGame(pause: boolean) {
+    this.gameService.pauseGame(pause);
+    this.gamePaused = pause;
+  }
+  fullscreen() {
+    const fs = this.p.fullscreen();
+    this.p.fullscreen(!fs);
+    this.dStoreS.fullScreen$.next(!fs);
   }
   ngOnInit() {
     this.innerWidth = window.innerWidth;
+    this.setGameOverState(this.dStoreS.gameInfo.gameState);
     this.createCanvas();
   }
 
   ngOnDestroy(): void {
     this.destroyCanvas();
-    console.log('gear-destroy');
+  }
+  private setGameOverState(gameState: GameState) {
+    this.gameOver = (gameState === GameState._4_end);
   }
   private onWindowResize = (e) => {
-    this.snackBar.open('Refresh your page to resize the canvas', 'OK', {
-      duration: 5000,
-    });
+    this.popup.notify('Refresh your page to resize the canvas');
   }
+
   private createCanvas = () => {
-    console.log('creating canvas');
     this.p5 = new p5(this.drawing);
   }
 
   private destroyCanvas = () => {
-    console.log('destroying canvas');
     this.p5.noCanvas();
   }
 
   private drawing = (p: any) => {
+    this.p = p;
     p.preload = () => {
       this.colorWheel = p.loadImage('assets/colorwheel.png');
-    }
+    };
     // f5 setup
     p.setup = () => {
       this.canvasWidth = p.windowWidth * 2 / 3;
       this.canvasHeight = p.windowWidth * 1 / 3;
-      const colorWheelSize = (this.canvasWidth > 700) ? 150 : this.canvasWidth / 5;
-      this.colorWheel.resize(colorWheelSize, colorWheelSize);
+      this.colorWheelSize = (this.canvasWidth > 700) ? 150 : this.canvasWidth / 5;
+      this.colorWheel.resize(this.colorWheelSize, this.colorWheelSize);
       if (this.isEditable) {
-        this.db.canvas.canvasWidth = this.canvasWidth;
+        this.dStoreS.canvas.canvasWidth = this.canvasWidth;
         this.db.updateCanvas();
       }
       p.createCanvas(this.canvasWidth, this.canvasHeight).parent('canvas-container');
@@ -98,11 +136,21 @@ export class CanvasComponent implements OnInit, OnDestroy {
       p.rect(0, 0, p.width, p.height);
 
       p.stroke([this.colorPicked.r, this.colorPicked.b, this.colorPicked.g, this.colorPicked.a]);
+      p.noStroke();
+      this.maxDistance = p.dist(p.width / 2, p.height / 2, p.width, p.height);
+      for (let x = 0; x < p.width; x++) {
+        this.distances[x] = []; // create nested array
+        for (let y = 0; y < p.height; y++) {
+          const distance = p.dist(p.width / 2, p.height / 2, x, y);
+          this.distances[x][y] = (distance / this.maxDistance) * 255;
+        }
+      }
+      this.spacer = 12;
     };
     p.center = { x: 0, y: 0 };
     // f5 draw
     p.draw = () => {
-      // p.background(0);
+      p.background(0);
       if (this.isEditable) {
         p.image(this.colorWheel, 5, 5);
       }
@@ -110,71 +158,107 @@ export class CanvasComponent implements OnInit, OnDestroy {
         if (p.mouseButton === p.LEFT) {
 
           // p.line(p.mouseX, p.mouseY, p.pmouseX, p.pmouseY);
-          if (this.canvasService.isDrawing) {
-            let point = null;
+          if (this.dStoreS.isDrawing) {
+            let point: Point = null;
             if (!(p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height) && this.isEditable) {
               point = {
-                x: p.mouseX,
-                y: p.mouseY,
-                color: this.colorPicked
+                // x: p.mouseX,
+                // y: p.mouseY
+                x: p.map(p.mouseX, 0, this.canvasWidth, 0, 100),
+                y: p.map(p.mouseY, 0, this.canvasWidth, 0, 100)
               };
             }
             if (point) {
-              this.canvasService.currentPath.push(point);
-            }
-          }
-          p.strokeWeight(4);
-          p.noFill();
-          if (this.canvasService.canvasDrawing.length > 0) {
-            const keys = Object.keys(this.canvasService.canvasDrawing);
-            for (let i = 0; i < this.canvasService.canvasDrawing.length; i++) {
-              const paths = this.canvasService.canvasDrawing[keys[i]];
-              if (paths) {
-                p.beginShape();
-                for (const path of paths) {
-                  const col = path.color;
-                  p.stroke([col.r, col.g, col.b, col.a]);
-                  const mapX = p.map(path.x, 0, this.canvasService.artistCanvasWidth, 0, p.windowWidth);
-                  const mapY = p.map(path.y, 0, this.canvasService.artistCanvasWidth, 0, p.windowWidth);
-                  p.vertex(mapX, mapY);
-                }
-                p.endShape();
-              }
+              this.dStoreS.currentPath.push(point);
             }
           }
         }
       }
-    }
+      p.strokeWeight(4);
+      p.noFill();
+      if (this.dStoreS.canvasDrawing && this.dStoreS.canvasDrawing.lines.length > 0) {
+        const keys = Object.keys(this.dStoreS.canvasDrawing.lines);
+        for (let i = 0; i < this.dStoreS.canvasDrawing.lines.length; i++) {
+          const line: Line = this.dStoreS.canvasDrawing.lines[keys[i]];
+          if (line) {
+            p.beginShape();
+            for (const point of line.points) {
+              const col = line.color;
+              p.stroke([col.r, col.g, col.b, col.a]);
+              let mapX = p.map(point.x, 0, 100, 0, this.canvasWidth);
+              let mapY = p.map(point.y, 0, 100, 0, this.canvasWidth);
+              p.vertex(mapX, mapY);
+            }
+            p.endShape();
+          }
+        }
+      }
+      if (this.isEditable) {
+        p.push();
+        p.stroke(this.colorPicked.r, this.colorPicked.g, this.colorPicked.b, 255);
+        p.fill(this.colorPicked.r, this.colorPicked.g, this.colorPicked.b, 175);
+        p.ellipse(this.colorWheelSize / 2 + 5, this.colorWheelSize + 15, 15, 15);
+        p.pop();
+      }
+      if (this.gameOver) {
+        p.push();
+        p.noStroke();
+        p.fill(255);
+        for (let x = 0; x < p.width; x += this.spacer) {
+          for (let y = 0; y < p.height; y += this.spacer) {
+            p.stroke(this.distances[x][y] / 4);
+            p.point(x + this.spacer / 2, y + this.spacer / 2);
+          }
+        }
+        p.textSize(20);
+        p.textFont('Redressed');
+        const sP = this.dStoreS.sortedPlayersByScore;
+        p.fill(42, 247, 236);
+        p.text('Rank', 20, 30);
+        p.text('Score', 80, 30);
+        p.text('Player', 140, 30);
+        // p.fill(0, 255, 50);
+        p.textSize(22);
+        for (let i = 0; i < sP.length; i++) {
+          p.text(i + 1, 35, 60 + i * 30);
+          p.text(sP[i].score, 95, 60 + i * 30);
+          p.text(sP[i].name, 145, 60 + i * 30);
+        }
+        p.pop();
+        p.noLoop();
+      }
+    };
     p.mousePressed = () => {
-      if (!(p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height) && this.isEditable) {
+      if (!(p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height)
+        && this.isEditable && (p.mouseX < this.canvasWidth && p.mouseY < this.canvasHeight)
+        && this.dStoreS.gameState === GameState._3_playing) {
         this.canvasService.startDrawing();
       } else {
-        if (p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height && this.isEditable) {
+        if (p.mouseX < this.colorWheelSize && p.mouseY < this.colorWheelSize && this.isEditable) {
           this.newColorPicked(this.colorWheel.get(p.mouseX, p.mouseY));
         }
       }
     }
     p.mouseReleased = () => {
-      this.canvasService.endDrawing();
-      // modulo math forces the color to swap through the array provided
-      // p.stroke([this.colorPicked.r, this.colorPicked.b, this.colorPicked.g, this.colorPicked.a]);
+      if (this.isEditable && this.dStoreS.isDrawing && this.dStoreS.gameState === GameState._3_playing) {
+        this.canvasService.endDrawing();
+      }
     };
 
     p.keyPressed = () => {
-      if (p.key === 'c') {
-        // window.location.reload();
-      }
+
     };
   }
 
   private newColorPicked = (newColor: number[]) => {
-    if (this.colorPicked.r !== newColor[0] &&
-      this.colorPicked.b !== newColor[1] &&
-      this.colorPicked.g !== newColor[2] &&
+    if (this.colorPicked.r !== newColor[0] ||
+      this.colorPicked.g !== newColor[1] ||
+      this.colorPicked.b !== newColor[2] ||
       this.colorPicked.a !== newColor[3]) {
-      this.canvasService.colorPicked$.next({ r: newColor[0], b: newColor[1], g: newColor[2], a: newColor[3] });
-      console.log(`color is now ${[this.colorPicked.r, this.colorPicked.b, this.colorPicked.g, this.colorPicked.a]}`);
+      this.dStoreS.colorPicked$.next({ r: newColor[0], g: newColor[1], b: newColor[2], a: newColor[3] });
+      // console.log(`color is now ${[this.colorPicked.r, this.colorPicked.g, this.colorPicked.b, this.colorPicked.a]}`);
     }
   }
+
 
 }

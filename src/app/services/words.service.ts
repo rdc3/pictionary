@@ -1,21 +1,28 @@
 import { Injectable } from '@angular/core';
 import { DbService } from './../services/db.service';
+import { DataStoreService } from './data-store.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WordsService {
-  wordsGenre = ['Random', 'Places', 'Movies', 'Sports', 'UserDefined'];
-  defaultWords = {
-    Random: [],
-    Places: ['Himalayas', 'India', 'USA', 'Australia', 'Italy', 'London', 'Africa', 'Antarctica', 'Sri Lanka', 'Russia'],
-    Movies: ['Rambo', 'Terminator', 'Mr Bean', 'Predator', 'Titanic', 'Jumanji', 'Maleficent', 'Rocky',
-      'Twilight', 'Avengers', 'Superman', 'Batman', 'Hobbit', 'Jurassic Park'],
-    Sports: [],
-    UserDefined: []
+
+
+
+  constructor(private db: DbService, private dStoreS: DataStoreService) { }
+
+  getWordCollection(genre: string) {
+    return this.dStoreS.defaultWords[genre].map(word => ({ used: false, word }));
   }
-  constructor(private db: DbService) { }
-  initializeWordsInDb() {
-    // this.db.defaultWords.
+
+  nextWord() {
+    if (this.dStoreS.words.collection && this.dStoreS.words.collection.length > 0) {
+      const unUsedWords = this.dStoreS.words.collection.filter(word => !word.used);
+      if (unUsedWords.length > 0) {
+        const next = unUsedWords[Math.floor(Math.random() * unUsedWords.length - 1)];
+        this.dStoreS.words.collection.find(w => w.word === next.word).used = true;
+        this.dStoreS.canvas.word = next.word;
+      }
+    }
   }
 }

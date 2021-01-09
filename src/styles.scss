@@ -1,8 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
 @import '~bootstrap/dist/css/bootstrap.css';
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html, body { 
+    height: 100%; 
+    // overflow: hidden;
+}
+body { margin: 0; font-family: "Redressed", Roboto, "Helvetica Neue", sans-serif;  }
 .outer-container.mat-card{
-    height:99%
+    height:100%
+}
+
+.hide-overflow {
+    overflow: hidden;
+}
+.mat-card,.mat-form-field, .mat-table, .mat-header-cell, .mat-input-element {
+    font-size: x-large;
+    font-family: "Redressed", Roboto, "Helvetica Neue", sans-serif !important;
 }

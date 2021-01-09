@@ -1,3 +1,6 @@
 <app-form *ngIf="displayForm"></app-form>
 <app-canvas *ngIf="!displayForm"></app-canvas>
-<!-- <app-canvas></app-canvas> -->
+<!-- Show the reset button until the canvas page is ready. After that the reset button is present in the canvas page -->
+<button *ngIf="isModerator && displayResetButton" (click)='resetGame()' class="ml-3" mat-mini-fab color="primary" aria-label="Reset button" matTooltip="Reset Game">
+    <mat-icon>restore</mat-icon>
+</button>

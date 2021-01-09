@@ -1,3 +1,4 @@
+import { DataStoreService } from 'src/app/services/data-store.service';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -9,21 +10,19 @@ import { AngularFireAuth } from '@angular/fire/auth';
 })
 export class AuthService {
 
-  user: firebase.User;
-  user$: Observable<firebase.User>;
-  constructor(public afAuth: AngularFireAuth, public router: Router) {
-    this.user$ = this.afAuth.authState;
-    this.user$.subscribe(user => {
+  constructor(public afAuth: AngularFireAuth, public router: Router, public dStoreS: DataStoreService) {
+    this.dStoreS.user$ = this.afAuth.authState;
+    this.dStoreS.user$.subscribe(user => {
       if (user) {
-        this.user = user;
-        localStorage.setItem('user', JSON.stringify(this.user));
+        this.dStoreS.user = user;
+        localStorage.setItem('user', JSON.stringify(this.dStoreS.user));
       } else {
         localStorage.setItem('user', null);
       }
     });
   }
   getUser(): Observable<firebase.User> {
-    return this.user$;
+    return this.dStoreS.user$;
   }
   async login(email: string, password: string) {
     const result = await this.afAuth.signInWithEmailAndPassword(email, password);
@@ -51,6 +50,7 @@ export class AuthService {
   }
   async loginWithGoogle() {
     await this.afAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+    localStorage.getItem('')
     this.router.navigate(['game']);
   }
 

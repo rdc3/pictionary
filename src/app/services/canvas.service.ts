@@ -1,10 +1,7 @@
-import { GameService } from './game.service';
-import { GuessedWord } from './../types/types';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 
-import { ColorPicked } from '../types/types';
 import { DbService } from './../services/db.service';
+import { DataStoreService } from './data-store.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,42 +9,44 @@ import { DbService } from './../services/db.service';
 
 export class CanvasService {
 
-  colorPicked$: BehaviorSubject<ColorPicked> = new BehaviorSubject({ r: 0, b: 0, g: 0, a: 0 });
-  guessedWords$: BehaviorSubject<GuessedWord[]> = new BehaviorSubject([]);
-  isDrawing = false;
-  currentPath = [];
-  canvasDrawing = [];
-  artistCanvasWidth = 1900;
 
-  constructor(private db: DbService, private gameService: GameService) {
-    this.db.canvas$.subscribe(canvas => {
-      this.artistCanvasWidth = canvas.canvasWidth;
-      this.guessedWords$.next(canvas.guessedWords);
+  constructor(private db: DbService, private dStoreS: DataStoreService) {
+    this.dStoreS.canvas$.subscribe(canvas => {
+      this.dStoreS.canvasDrawing = (canvas.drawing) ? canvas.drawing : this.dStoreS.defaultDrawing;
     });
-   }
+    // this.dStoreS.playerId = '1'; //this.gameService.player.id
+  }
 
   startDrawing() {
-    this.isDrawing = true;
-    this.currentPath = [];
-    this.canvasDrawing.push(this.currentPath);
+    this.dStoreS.isDrawing = true;
+    this.dStoreS.currentPath = [];
+    this.dStoreS.canvasDrawing.lines.push({ points: this.dStoreS.currentPath, color: this.dStoreS.colorPicked$.value });
   }
 
   endDrawing() {
-    this.isDrawing = false;
+    this.dStoreS.isDrawing = false;
     this.saveDrawing();
   }
 
   clearCanvas() {
-    this.canvasDrawing = [];
+    // console.log('Clearing canvas');
+    this.dStoreS.canvasDrawing.lines = [];
+    this.saveDrawing();
   }
 
   private saveDrawing() {
-    console.log('saving:', this.canvasDrawing);
+    // console.log('saving:', this.dStoreS.canvasDrawing);
+    this.dStoreS.canvas.drawing = this.dStoreS.canvasDrawing;
+    this.db.updateCanvas();
   }
 
   newGuess(guessedWord: string) {
-    this.db.canvas.guessedWords.push({ by: this.gameService.player.id, word: guessedWord });
-    this.db.updateCanvas();
+    if (!(this.dStoreS.canvas.guessedWords && this.dStoreS.canvas.guessedWords.length > 0 &&
+      this.dStoreS.canvas.guessedWords.find(w => w.word === guessedWord))) {
+
+      this.dStoreS.canvas.guessedWords.push({ byId: this.dStoreS.player.id, byName: this.dStoreS.player.name, word: guessedWord });
+      this.db.updateCanvas();
+    }
   }
 }
 
