@@ -197,9 +197,11 @@ export class GameService implements OnDestroy {
       localStorage.setItem('playerName', name);
     } else if (localStorage.getItem('playerName')) {
       this.dStoreS.player.name = String(localStorage.getItem('playerName'));
-    } else {
+    } else if (this.dStoreS.user) {
       this.dStoreS.player.name = this.dStoreS.user.displayName;
       localStorage.setItem('playerName', this.dStoreS.player.name);
+    } else {
+      this.dStoreS.player.name = 'Guest';
     }
   }
 
