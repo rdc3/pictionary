@@ -8,7 +8,7 @@ import { Roles, GuessedWord, Point, Line, RoundInfo } from './../../types/types'
 import { GameService } from './../../services/game.service';
 import { DbService } from './../../services/db.service';
 import { CanvasService } from './../../services/canvas.service';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormControl } from '@angular/forms';
 
 @Component({
