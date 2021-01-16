@@ -1,35 +1,36 @@
 <form *ngIf="!waitingOthersToJoin" [formGroup]="playerSetup" (ngSubmit)="onSubmit()" #form="ngForm">
-    <p>
-        <mat-form-field class="ml-2" appearance="outline">
+    <p class="flex-container">
+        <mat-form-field fxLayout.gt-sm appearance="outline" class="flex-48">
             <mat-label>NickName</mat-label>
             <input name="nickName" matInput [formControl]="nickNameControl" placeholder="Enter your nickname">
             <mat-error *ngIf="nickNameControl.invalid">Please enter a nickname with a maximum of 15 characters</mat-error>
         </mat-form-field>
-        <mat-checkbox class="ml-4" name="useDisplayNameAsNickName" (change)="useDisplayNameAsNickName($event.checked)" [labelPosition]="'after'">
+        <mat-checkbox name="useDisplayNameAsNickName"
+        (change)="useDisplayNameAsNickName($event.checked)" [labelPosition]="'after'" class="flex-48 flex-right">
             Use <b>{{displayName}}</b> as nickname.
         </mat-checkbox>
     </p>
-    <p>
-        <mat-form-field class="ml-2" *ngIf="!gameInitialized" appearance="outline">
+    <p class="flex-container">
+        <mat-form-field class="flex-48" *ngIf="!gameInitialized" appearance="outline">
             <mat-label>Number of Players</mat-label>
             <input type="number" matInput [formControl]="maxPlayersControl" placeholder=" > 1">
             <mat-error *ngIf="maxPlayersControl.invalid">Please enter at least 2 players and a maximum of 10 players.</mat-error>
         </mat-form-field>
 
-        <mat-form-field class="ml-4" *ngIf="!gameInitialized" appearance="outline">
+        <mat-form-field class="flex-48 flex-right" *ngIf="!gameInitialized" appearance="outline">
             <mat-label>Number of Rounds</mat-label>
             <input type="number" matInput [formControl]="maxRoundsControl" placeholder=" > 0">
             <mat-error *ngIf="maxRoundsControl.invalid">Please enter at least 1 round and a maximum of 10 rounds.</mat-error>
         </mat-form-field>
     </p>
-    <p>
-        <mat-form-field class="ml-2" *ngIf="!gameInitialized" appearance="outline">
+    <p class="flex-container">
+        <mat-form-field class="flex-48" *ngIf="!gameInitialized" appearance="outline">
             <mat-label>Time per round (minutes)</mat-label>
             <input type="number" matInput [formControl]="maxTimeControl" placeholder=" > 0">
             <mat-error *ngIf="maxRoundsControl.invalid">Please enter at least 1 minute and a maximum of 10 minutes.</mat-error>
         </mat-form-field>
 
-        <mat-form-field class="ml-4" *ngIf="!gameInitialized" appearance="outline">
+        <mat-form-field class="flex-48 flex-right" *ngIf="!gameInitialized" appearance="outline">
             <mat-label>Genre</mat-label>
             <select placeholder="select" [formControl]="genreControl" matNativeControl  name="car">
               <option *ngFor="let genre of store.wordsGenre" [value]="genre">

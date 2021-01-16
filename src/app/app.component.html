@@ -14,15 +14,20 @@
       <a mat-button [routerLink]="'/create-activity'"> Create Activity </a>
 
     </div> -->
-    <a *ngIf="isLoggedIn" (click)="logout()"><img mat-card-image src="assets/logout.png" class="logout" alt="Photo of a Shiba Inu"></a>
+    <!-- <button  mat-mini-fab matTooltip="Logout" (click)="logout()"  color="accent">
+      <mat-icon>perm_identity</mat-icon><span>Logout</span>
+    </button> -->
+    <button  mat-button *ngIf="isLoggedIn" (click)="logout()">
+      <mat-icon>perm_identity</mat-icon>
+      Logout
+    </button>
   </mat-toolbar-row>
 
   <!-- <mat-toolbar-row>
       <span style="font-size: 12px;">SimpleCRM helps you easily manage your contacts</span>
     </mat-toolbar-row> -->
 </mat-toolbar>
-
-<mat-sidenav-container class="hide-overflow">
+<mat-sidenav-container [ngClass]="{'hide-overflow':fullscreen===true}">
   <mat-sidenav #sidenav>
     <mat-nav-list>
 
@@ -36,9 +41,9 @@
 
     </mat-nav-list>
   </mat-sidenav>
-  <mat-sidenav-content class="hide-overflow">
+  <mat-sidenav-content [ngClass]="{'hide-overflow':fullscreen===true}">
     <div style="height: 88vh;">
-      <mat-card class="outer-container hide-overflow">
+      <mat-card class="outer-container" [ngClass]="{'hide-overflow':fullscreen===true}">
         <router-outlet></router-outlet>
       </mat-card>
     </div>

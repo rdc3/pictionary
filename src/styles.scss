@@ -10,10 +10,51 @@ body { margin: 0; font-family: "Redressed", Roboto, "Helvetica Neue", sans-serif
     height:100%
 }
 
-.hide-overflow {
-    overflow: hidden;
-}
-.mat-card,.mat-form-field, .mat-table, .mat-header-cell, .mat-input-element {
+.mat-card,.mat-form-field, .mat-table, .mat-header-cell, .mat-input-element, .mat-checkbox {
     font-size: x-large;
     font-family: "Redressed", Roboto, "Helvetica Neue", sans-serif !important;
+}
+.flex-48{
+    flex: 48%;
+    margin: 0px 5px;
+}
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0px;
+  }
+@media screen and (orientation: portrait) {
+    
+    .mat-form-field-wrapper{
+        padding-bottom:0.5em;
+        margin:0;
+    }
+    .mat-card,.mat-form-field, .mat-table, .mat-header-cell, .mat-input-element  {
+        font-size: large !important;
+    }
+    .mat-form-field-infix{
+        padding: 0.5em 0 0.5em 0 !important;
+    }
+    // .mat-card,.mat-form-field, .mat-table, .mat-header-cell, .mat-input-element  {
+    //     font-size: large !important;
+    //     padding: 0.5em 0 0.5em 0 !important;
+    // }
+    .hide-overflow {
+        overflow: hidden;
+    }
+}
+@media screen and (orientation: landscape) {
+    .mat-form-field-wrapper{
+        padding-bottom:0.5em;
+        margin:0;
+    }
+    .mat-card,.mat-form-field, .mat-table, .mat-header-cell, .mat-input-element  {
+        font-size: large !important;
+    }
+    .mat-form-field-infix{
+        padding: 0.5em 0 0.5em 0 !important;
+    }
+    .hide-overflow {
+        overflow: hidden;
+    }
 }

@@ -28,10 +28,11 @@ export class DataStoreService {
   user$: Observable<firebase.User>;
 
   // TIME
-  roundUpdateTime$: BehaviorSubject<Date> = new BehaviorSubject(new Date());
+  roundStartTime$: BehaviorSubject<number> = new BehaviorSubject(new Date().getTime());
   timeElapsed$: BehaviorSubject<number> = new BehaviorSubject(0);
   // maxTime = 10;
   timeElapsed = 0;
+  clientOffsetTime = 0;
 
   // GAME
   player: Player = this.defaultPlayer;
@@ -81,6 +82,9 @@ export class DataStoreService {
   get defaultWordsDbPath() {
     return 'Pictionary/words';
   }
+  get serverTimeOffset() {
+    return 'Pictionary/serverTimeOffset';
+  }
   get defaultCanvas(): Canvas {
     return { artist: '', canvasWidth: 9600, drawing: null, word: '', guessedWords: [] };
   }
@@ -91,7 +95,7 @@ export class DataStoreService {
     return { gameState: GameState._1_init, maxPlayers: 2, maxRounds: 1, playerCount: 0, players: [], maxTime: 3 };
   }
   get defaultRoundInfo(): RoundInfo {
-    return { notYetArtist: [], roundNumber: 0, paused: false };
+    return { notYetArtist: [], roundNumber: 0, paused: false, startedAt: (new Date().getTime()) };
   }
   get wordsGenre() { return ['Random', 'Places', 'Movies', 'Sports', 'UserDefined']; }
   get defaultWords() {

@@ -5,7 +5,12 @@ export interface Point { x: number; y: number; }
 export interface Line { points: Point[]; color: Color; }
 export interface Drawing { lines: Line[]; }
 export interface GuessedWord { byId: string; byName: string; word: string; }
-export interface RoundInfo { notYetArtist: string[]; roundNumber: number; paused: boolean; }
+export interface RoundInfo {
+    notYetArtist: string[];
+    roundNumber: number;
+    paused: boolean;
+    startedAt: number;
+}
 export interface GameInfo {
     gameState: GameState;
     maxPlayers: number;
@@ -27,3 +32,5 @@ export interface Player {
 }
 export interface WordsCollection { collection: WordToGuess[]; }
 export interface WordToGuess { word: string; used: boolean; }
+export interface OffsetTime { clientTime: FireTimestamp; serverTime: FireTimestamp; }
+export interface FireTimestamp extends firebase.default.firestore.Timestamp { }

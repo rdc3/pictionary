@@ -18,13 +18,26 @@ export class GameService implements OnDestroy {
     private popup: PopupNotificationService
   ) {
     this.initPlayer();
-    this.dStoreS.gameState$.subscribe(val => this.dStoreS.gameState = val);
+    this.dStoreS.gameState$.subscribe(val => {
+      this.dStoreS.gameState = val;
+    });
+    console.log('player id check:', this.dStoreS.player.id)
+    this.getClientTimeOffset();
     this.timer = setInterval(() => {
-      if (this.dStoreS.timeElapsed < this.dStoreS.gameInfo.maxTime && !this.dStoreS.roundInfo.paused) { this.dStoreS.timeElapsed++; }
-      this.updateMessage();
-      if (this.dStoreS.timeElapsed === this.dStoreS.gameInfo.maxTime && this.dStoreS.player.isModerator
-        && this.dStoreS.gameState === GameState._3_playing) {
-        this.roundEnded();
+      if (this.dStoreS.gameState > GameState._2_joining) {
+        if (this.dStoreS.timeElapsed < this.dStoreS.gameInfo.maxTime && !this.dStoreS.roundInfo.paused) {
+          if (this.dStoreS.roundInfo.startedAt) {
+            this.dStoreS.timeElapsed = this.dbS.calculateDiff(this.dStoreS.roundInfo.startedAt)
+              - this.dStoreS.clientOffsetTime;
+          } else {
+            this.dStoreS.timeElapsed++;
+          }
+        }
+        this.updateMessage();
+        if (this.dStoreS.timeElapsed >= this.dStoreS.gameInfo.maxTime
+          && this.dStoreS.gameState === GameState._3_playing) {
+          this.roundEnded();
+        }
       }
     }, 1000);
     this.dStoreS.timeElapsed$.subscribe(val => this.dStoreS.timeElapsed = val);
@@ -49,12 +62,14 @@ export class GameService implements OnDestroy {
             this.dStoreS.guessedWords$.next(val.guessedWords);
             if (val.guessedWords && val.guessedWords.length > 0) {
               const correctGuess = val.guessedWords.filter(word => word.word.toLowerCase() === this.dStoreS.canvas.word.toLowerCase());
-              // console.log('correctGuess:', correctGuess);
               if (correctGuess && correctGuess.length > 0) {
                 const player = this.dStoreS.gameInfo.players.find(p => p.id === correctGuess[0].byId);
-                this.popup.notify(`${player.name} has guessed the word - ${this.dStoreS.canvas.word}`);
+                if (player.id === this.dStoreS.player.id) {
+                  this.popup.notify(`You guessed it right!!!`);
+                } else {
+                  this.popup.notify(`${player.name} has guessed the word - ${this.dStoreS.canvas.word}`);
+                }
                 if (this.dStoreS.player.isModerator) {
-                  // console.log('correctGuess player', player);
                   player.score++;
                   this.roundEnded();
                 }
@@ -76,12 +91,13 @@ export class GameService implements OnDestroy {
     this.dbS.updateGameInfo();
     this.dStoreS.roundInfo = this.dStoreS.defaultRoundInfo;
     this.dbS.updateRoundInfo();
-    // setTimeout(() => window.location.reload(), 1000);
   }
 
   joinGame(intInfo: { nickName: string, maxPlayers: number, maxRounds: number, maxTime: number, genre: string }) {
     this.dStoreS.player.name = intInfo.nickName;
+    this.dStoreS.player.type = Roles.guesser;
     this.setPlayerName(this.dStoreS.player.name);
+    if (!this.dStoreS.gameInfo.playerCount) { this.dStoreS.gameInfo.playerCount = 0; }
     this.dStoreS.gameInfo.playerCount += 1;
     if (this.dStoreS.gameState === GameState._1_init) {
       this.dStoreS.player.isModerator = true;
@@ -102,12 +118,12 @@ export class GameService implements OnDestroy {
     if (this.dStoreS.gameState === GameState._2_joining) {
       if (this.dStoreS.gameInfo.playerCount === this.dStoreS.gameInfo.maxPlayers) {
         this.dStoreS.gameInfo.gameState = GameState._3_playing;
+        this.dStoreS.roundInfo.startedAt = (new Date()).getTime();
       }
       this.dStoreS.roundInfo.notYetArtist.push(this.dStoreS.player.id);
       this.dStoreS.player.isPlaying = true;
     }
     this.dbS.addPlayer(this.dStoreS.player);
-    // this.dbService.updateGameInfo();
     this.dbS.updateRoundInfo();
   }
   pauseGame(pause: boolean) {
@@ -120,6 +136,7 @@ export class GameService implements OnDestroy {
       let nextArtist = '';
       // set all players as guessers
       this.dStoreS.gameInfo.players.forEach(player => player.type = Roles.guesser);
+      this.dStoreS.roundInfo.startedAt = (new Date()).getTime();
       if (this.dStoreS.roundInfo.notYetArtist.length > 0) {
         // if there are players who were not yet artists in this round, use the 1st one from them as artist
         nextArtist = this.dStoreS.roundInfo.notYetArtist[0];
@@ -230,4 +247,7 @@ export class GameService implements OnDestroy {
     });
   }
 
+  private getClientTimeOffset() {
+    this.dbS.getClientTimeOffset(this.dStoreS.player.id);
+  }
 }

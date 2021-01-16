@@ -20,6 +20,7 @@ export class WordsService {
       const unUsedWords = this.dStoreS.words.collection.filter(word => !word.used);
       if (unUsedWords.length > 0) {
         const next = unUsedWords[Math.floor(Math.random() * unUsedWords.length - 1)];
+        console.log('next word:', next.word, this.dStoreS.words.collection);
         this.dStoreS.words.collection.find(w => w.word === next.word).used = true;
         this.dStoreS.canvas.word = next.word;
       }

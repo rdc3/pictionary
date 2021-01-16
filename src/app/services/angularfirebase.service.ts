@@ -116,8 +116,8 @@ export class AngularfirebaseService {
     const timestamp = this.timestamp;
     return this.doc(ref).set({
       ...data,
-      updatedAt: timestamp,
-      createdAt: timestamp
+      createdAt: timestamp,
+      updatedAt: timestamp
     });
   }
 
