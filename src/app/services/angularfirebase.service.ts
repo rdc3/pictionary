@@ -1,3 +1,4 @@
+import { LoggingService } from './logging.service';
 import { Injectable } from '@angular/core';
 import {
   AngularFirestore,
@@ -32,7 +33,8 @@ export class AngularfirebaseService {
   private firstInsert = [];
   constructor(
     public aFirestore: AngularFirestore,
-    public aFireStorage: AngularFireStorage
+    public aFireStorage: AngularFireStorage,
+    private log: LoggingService
   ) {}
 
   /// **************
@@ -57,17 +59,8 @@ export class AngularfirebaseService {
     return this.doc(ref)
       .snapshotChanges()
       .pipe(
-        map(
-          (
-            doc: Action<
-              DocumentSnapshotDoesNotExist | DocumentSnapshotExists<T>
-            >
-          ) => {
-            return doc.payload.data() as T;
-          }
-        ), catchError(err => {
-          console.log('Finally caught the error', err);
-          return throwError(err);
+        map((doc: Action<DocumentSnapshotDoesNotExist | DocumentSnapshotExists<T>>) => {
+          return doc.payload.data() as T;
         })
       );
   }
@@ -80,11 +73,8 @@ export class AngularfirebaseService {
           return docs.map((a: DocumentChangeAction<T>) =>
             a.payload.doc.data()
           ) as T[];
-        }), catchError(err => {
-          console.log('Finally caught the error', err);
-          return throwError(err);
-        }
-      ));
+        })
+      );
   }
 
   /// with Ids
@@ -190,7 +180,7 @@ export class AngularfirebaseService {
             >
           ) => {
             const tock = new Date().getTime() - tick;
-            console.log(`Loaded Document in ${tock}ms`, d);
+            this.log.debug(`Loaded Document in ${tock}ms`, d);
           }
         )
       )
@@ -205,7 +195,7 @@ export class AngularfirebaseService {
         take(1),
         tap((c: DocumentChangeAction<any>[]) => {
           const tock = new Date().getTime() - tick;
-          console.log(`Loaded Collection in ${tock}ms`, c);
+          this.log.debug(`Loaded Collection in ${tock}ms`, c);
         })
       )
       .subscribe();

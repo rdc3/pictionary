@@ -1,5 +1,5 @@
+import { LoggingService } from './logging.service';
 import { Injectable } from '@angular/core';
-import { DbService } from './../services/db.service';
 import { DataStoreService } from './data-store.service';
 
 @Injectable({
@@ -7,9 +7,10 @@ import { DataStoreService } from './data-store.service';
 })
 export class WordsService {
 
-
-
-  constructor(private db: DbService, private dStoreS: DataStoreService) { }
+  constructor(
+    private dStoreS: DataStoreService,
+    private log: LoggingService
+  ) { }
 
   getWordCollection(genre: string) {
     return this.dStoreS.defaultWords[genre].map(word => ({ used: false, word }));
@@ -20,7 +21,7 @@ export class WordsService {
       const unUsedWords = this.dStoreS.words.collection.filter(word => !word.used);
       if (unUsedWords.length > 0) {
         const next = unUsedWords[Math.floor(Math.random() * unUsedWords.length - 1)];
-        console.log('next word:', next.word, this.dStoreS.words.collection);
+        this.log.debug('next word:', next.word, this.dStoreS.words.collection);
         this.dStoreS.words.collection.find(w => w.word === next.word).used = true;
         this.dStoreS.canvas.word = next.word;
       }

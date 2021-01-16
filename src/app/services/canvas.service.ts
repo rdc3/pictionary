@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 
-import { DbService } from './../services/db.service';
 import { AuthService } from './auth.service';
 import { DataStoreService } from './data-store.service';
+import { DbService } from './../services/db.service';
+import { LoggingService } from './logging.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,10 +12,23 @@ import { DataStoreService } from './data-store.service';
 export class CanvasService {
 
 
-  constructor(private db: DbService, private dStoreS: DataStoreService, private auth: AuthService) {
+  constructor(
+    private db: DbService,
+    private dStoreS: DataStoreService,
+    private auth: AuthService,
+    private log: LoggingService
+  ) {
     this.dStoreS.canvas$.subscribe(
       (canvas) => {
-        this.dStoreS.canvasDrawing = (canvas.drawing) ? canvas.drawing : this.dStoreS.defaultDrawing;
+        if (canvas) {
+          this.dStoreS.canvasDrawing = (canvas.drawing) ? canvas.drawing : this.dStoreS.defaultDrawing;
+          this.dStoreS.canvas.artist = (canvas.artist) ? canvas.artist : '';
+          this.dStoreS.canvas.canvasWidth = (canvas.canvasWidth) ? canvas.canvasWidth : 1900;
+          this.dStoreS.canvas.drawing = (canvas.drawing) ? canvas.drawing : null;
+          this.dStoreS.canvas.guessedWords = (canvas.guessedWords) ? canvas.guessedWords : [];
+          this.dStoreS.canvas.word = (canvas.word) ? canvas.word : '';
+          this.log.debug('canvas:', this.dStoreS.canvas);
+        }
       },
       (err) => this.auth.analyzeError(err)
     );

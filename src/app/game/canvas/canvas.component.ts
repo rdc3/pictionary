@@ -77,7 +77,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   newGuess() {
-    console.log('new guess:', this.guessInput.value);
+    // console.log('new guess:', this.guessInput.value);
     this.canvasService.newGuess(this.guessInput.value);
     this.guessInput.setValue('');
   }

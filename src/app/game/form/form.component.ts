@@ -47,10 +47,12 @@ export class FormComponent implements OnInit {
       maxTime: this.maxTimeControl,
       genre: this.genreControl
     });
-    this.dStoreS.user$.pipe(map(user => { this.displayName = user.displayName; })).subscribe();
-    this.dStoreS.player$.subscribe(player =>
+    this.dStoreS.user$.pipe(map(user => { this.displayName = this.displayName ?? user.displayName; })).subscribe();
+    this.dStoreS.player$.subscribe(player => {
+      this.displayName = player.name;
       this.waitingOthersToJoin =
-      (this.dStoreS.gameState === GameState._2_joining && player.isPlaying)
+        (this.dStoreS.gameState === GameState._2_joining && player.isPlaying);
+    }
     );
     this.dStoreS.attendance$.subscribe(attendance => this.joinProgress = attendance);
     this.dStoreS.gameState$.subscribe(gameState => this.gameInitialized = gameState > GameState._1_init);

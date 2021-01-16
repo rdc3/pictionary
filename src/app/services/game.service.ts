@@ -1,3 +1,4 @@
+import { LoggingService } from './logging.service';
 import { PopupNotificationService } from './popup-notification.service';
 import { Injectable, OnDestroy } from '@angular/core';
 
@@ -17,13 +18,14 @@ export class GameService implements OnDestroy {
     private wordS: WordsService,
     private dStoreS: DataStoreService,
     private popup: PopupNotificationService,
-    private auth: AuthService
+    private auth: AuthService,
+    private log: LoggingService
   ) {
     this.initPlayer();
     this.dStoreS.gameState$.subscribe(val => {
       this.dStoreS.gameState = val;
     });
-    console.log('player id check:', this.dStoreS.player.id);
+    // console.log('player id check:', this.dStoreS.player.id);
     this.getClientTimeOffset();
     this.timer = setInterval(() => {
       this.incrementElapsedTime();
@@ -50,25 +52,23 @@ export class GameService implements OnDestroy {
               }
               if (val.guessedWords && val.guessedWords.length > 0) {
                 this.dStoreS.guessedWords$.next(val.guessedWords);
-                if (val.guessedWords && val.guessedWords.length > 0) {
-                  const correctGuess = val.guessedWords.filter(word => word.word.toLowerCase() === this.dStoreS.canvas.word.toLowerCase());
-                  if (correctGuess && correctGuess.length > 0) {
-                    const player = this.dStoreS.gameInfo.players.find(p => p.id === correctGuess[0].byId);
-                    if (player.id === this.dStoreS.player.id) {
-                      this.popup.notify(`You guessed it right!!!`);
-                    } else {
-                      this.popup.notify(`${player.name} has guessed the word - ${this.dStoreS.canvas.word}`);
-                    }
-                    if (this.dStoreS.player.isModerator) {
-                      player.score++;
-                      this.roundEnded();
-                    }
+                const correctGuess = val.guessedWords.filter(word => word.word.toLowerCase() === this.dStoreS.canvas.word.toLowerCase());
+                if (correctGuess && correctGuess.length > 0) {
+                  const player = this.dStoreS.gameInfo.players.find(p => p.id === correctGuess[0].byId);
+                  if (player.id === this.dStoreS.player.id) {
+                    this.popup.notify(`You guessed it right!!!`);
+                  } else {
+                    this.popup.notify(`${player.name} has guessed the word - ${this.dStoreS.canvas.word}`);
+                  }
+                  if (this.dStoreS.player.isModerator) {
+                    player.score++;
+                    this.roundEnded();
                   }
                 }
               }
             }
           },
-        (err) => this.auth.analyzeError(err));
+          (err) => this.auth.analyzeError(err));
       },
       (err) => this.auth.analyzeError(err)
     );
@@ -189,7 +189,7 @@ export class GameService implements OnDestroy {
       this.dStoreS.gameInfo.gameState = GameState._4_end;
     }
     this.dbS.updateGameInfo();
-    console.log('game ended..');
+    this.log.debug('game ended..');
   }
 
   private updateMessage() {

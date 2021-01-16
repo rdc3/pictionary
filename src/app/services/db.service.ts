@@ -1,3 +1,4 @@
+import { LoggingService } from './logging.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
@@ -19,20 +20,12 @@ export class DbService {
     private afs: AngularfirebaseService,
     private dStoreS: DataStoreService,
     private popup: PopupNotificationService,
-    private auth: AuthService) {
+    private auth: AuthService,
+    private log: LoggingService
+  ) {
     this.dStoreS.canvas = this.dStoreS.defaultCanvas;
     this.dStoreS.canvasDoc = this.afs.doc<Canvas>(this.dStoreS.canvasDbPath);
     this.dStoreS.canvas$ = this.dStoreS.canvasDoc.valueChanges();
-    this.dStoreS.canvas$.subscribe(val => {
-      if (val) {
-        this.dStoreS.canvas.artist = (val.artist) ? val.artist : '';
-        this.dStoreS.canvas.canvasWidth = (val.canvasWidth) ? val.canvasWidth : 1900;
-        this.dStoreS.canvas.drawing = (val.drawing) ? val.drawing : null;
-        this.dStoreS.canvas.guessedWords = (val.guessedWords) ? val.guessedWords : [];
-        this.dStoreS.canvas.word = (val.word) ? val.word : '';
-        console.log('canvas:', this.dStoreS.canvas);
-      }
-    }, (err) => this.auth.analyzeError(err));
     this.dStoreS.gameInfoDoc = this.afs.doc<GameInfo>(this.dStoreS.gameInfoDbPath);
     this.dStoreS.gameInfo$ = this.dStoreS.gameInfoDoc.valueChanges();
     this.dStoreS.gameInfo$.subscribe(val => {
@@ -43,7 +36,7 @@ export class DbService {
         this.dStoreS.timeElapsed$.next(0);
       }
       this.dStoreS.gameInfo = val;
-      console.log('gameInfo:', this.dStoreS.gameInfo);
+      this.log.debug('gameInfo:', this.dStoreS.gameInfo);
     }, (err) => this.auth.analyzeError(err));
     this.dStoreS.roundInfoDoc = this.afs.doc<RoundInfo>(this.dStoreS.roundInfoDbPath);
     this.dStoreS.roundInfo$ = this.dStoreS.roundInfoDoc.valueChanges();
@@ -56,7 +49,7 @@ export class DbService {
       if (val.startedAt !== this.dStoreS.roundStartTime$.value) {
         this.dStoreS.roundStartTime$.next(val.startedAt);
       }
-      console.log('roundInfo:', this.dStoreS.roundInfo);
+      this.log.debug('roundInfo:', this.dStoreS.roundInfo);
     }, (err) => this.auth.analyzeError(err));
     this.dStoreS.wordsDoc = this.afs.doc<WordsCollection>(this.dStoreS.defaultWordsDbPath);
     this.dStoreS.words$ = this.dStoreS.wordsDoc.valueChanges();
@@ -107,7 +100,7 @@ export class DbService {
     }).then(
       (val) => {
         this.afs.doc<OffsetTime>(path).valueChanges().subscribe(serverVal => {
-          console.log('offset values from server:', serverVal);
+          this.log.debug('offset values from server:', serverVal);
           this.dStoreS.clientOffsetTime = this.calculateDiff(
             serverVal.serverTime.toDate().getTime()),
             (serverVal.clientTime).toDate().getTime();
