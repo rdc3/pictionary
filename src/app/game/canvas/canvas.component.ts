@@ -8,8 +8,8 @@ import { Roles, GuessedWord, Point, Line, RoundInfo } from './../../types/types'
 import { GameService } from './../../services/game.service';
 import { DbService } from './../../services/db.service';
 import { CanvasService } from './../../services/canvas.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormControl } from '@angular/forms';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-canvas',
@@ -28,6 +28,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   private colorPicked: Color;
   isEditable = false;
   isModerator = false;
+  isPlaying = false;
   guessInput = new FormControl('');
   hint = '';
   displayedColumns = ['by', 'word'];
@@ -46,7 +47,8 @@ export class CanvasComponent implements OnInit, OnDestroy {
     private db: DbService,
     private gameService: GameService,
     private dStoreS: DataStoreService,
-    private popup: PopupNotificationService
+    private popup: PopupNotificationService,
+    private auth: AuthService
   ) {
     window.onresize = this.onWindowResize;
     this.dStoreS.colorPicked$.subscribe(color => {
@@ -58,12 +60,16 @@ export class CanvasComponent implements OnInit, OnDestroy {
       this.playerRole = (this.isEditable) ? 'artist' : 'guesser';
       this.isModerator = player.isModerator;
       this.playerName = player.name;
+      this.isPlaying = player.isPlaying;
     });
     this.dStoreS.gameState$.subscribe(gameState => {
       this.setGameOverState(gameState);
     });
     this.dStoreS.guessedWords$.subscribe(words => this.guessedWords = words.reverse());
-    this.dStoreS.roundInfo$.subscribe(roundInfo => this.gamePaused = roundInfo.paused);
+    this.dStoreS.roundInfo$.subscribe(
+      (roundInfo) => this.gamePaused = roundInfo.paused,
+      (err) => this.auth.analyzeError(err)
+    );
   }
 
   resetGame() {

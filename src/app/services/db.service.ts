@@ -1,5 +1,7 @@
+import { AuthService } from 'src/app/services/auth.service';
 import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { DataStoreService } from './data-store.service';
 import { AngularfirebaseService } from './angularfirebase.service';
@@ -16,7 +18,8 @@ export class DbService {
   constructor(
     private afs: AngularfirebaseService,
     private dStoreS: DataStoreService,
-    private popup: PopupNotificationService) {
+    private popup: PopupNotificationService,
+    private auth: AuthService) {
     this.dStoreS.canvas = this.dStoreS.defaultCanvas;
     this.dStoreS.canvasDoc = this.afs.doc<Canvas>(this.dStoreS.canvasDbPath);
     this.dStoreS.canvas$ = this.dStoreS.canvasDoc.valueChanges();
@@ -29,7 +32,7 @@ export class DbService {
         this.dStoreS.canvas.word = (val.word) ? val.word : '';
         console.log('canvas:', this.dStoreS.canvas);
       }
-    });
+    }, (err) => this.auth.analyzeError(err));
     this.dStoreS.gameInfoDoc = this.afs.doc<GameInfo>(this.dStoreS.gameInfoDbPath);
     this.dStoreS.gameInfo$ = this.dStoreS.gameInfoDoc.valueChanges();
     this.dStoreS.gameInfo$.subscribe(val => {
@@ -41,7 +44,7 @@ export class DbService {
       }
       this.dStoreS.gameInfo = val;
       console.log('gameInfo:', this.dStoreS.gameInfo);
-    });
+    }, (err) => this.auth.analyzeError(err));
     this.dStoreS.roundInfoDoc = this.afs.doc<RoundInfo>(this.dStoreS.roundInfoDbPath);
     this.dStoreS.roundInfo$ = this.dStoreS.roundInfoDoc.valueChanges();
     this.dStoreS.roundInfo$.subscribe(val => {
@@ -49,17 +52,17 @@ export class DbService {
       this.dStoreS.roundInfo = val;
       if (this.dStoreS.roundInfo.roundNumber !== val.roundNumber) {
         this.dStoreS.timeElapsed$.next(0);
-      } 
+      }
       if (val.startedAt !== this.dStoreS.roundStartTime$.value) {
         this.dStoreS.roundStartTime$.next(val.startedAt);
       }
       console.log('roundInfo:', this.dStoreS.roundInfo);
-    });
+    }, (err) => this.auth.analyzeError(err));
     this.dStoreS.wordsDoc = this.afs.doc<WordsCollection>(this.dStoreS.defaultWordsDbPath);
     this.dStoreS.words$ = this.dStoreS.wordsDoc.valueChanges();
     this.dStoreS.words$.subscribe(val => {
       this.dStoreS.words = val;
-    });
+    }, (err) => this.auth.analyzeError(err));
   }
   updateGameInfo() {
     this.afs.set<GameInfo>(this.dStoreS.gameInfoDbPath, this.dStoreS.gameInfo);
@@ -101,14 +104,17 @@ export class DbService {
     this.afs.set<OffsetTime>(path, {
       clientTime: new Date(),
       serverTime: this.afs.timestamp
-    }).then(val => {
-      this.afs.doc<OffsetTime>(path).valueChanges().subscribe(serverVal => {
-        console.log('offset values from server:', serverVal);
-        this.dStoreS.clientOffsetTime = this.calculateDiff(
-          serverVal.serverTime.toDate().getTime()),
-          (serverVal.clientTime).toDate().getTime();
-      });
-    });
+    }).then(
+      (val) => {
+        this.afs.doc<OffsetTime>(path).valueChanges().subscribe(serverVal => {
+          console.log('offset values from server:', serverVal);
+          this.dStoreS.clientOffsetTime = this.calculateDiff(
+            serverVal.serverTime.toDate().getTime()),
+            (serverVal.clientTime).toDate().getTime();
+        });
+      },
+      (err) => this.auth.analyzeError(err)
+    );
   }
   calculateDiff(dateAfter, dateBefore?) {
     if (!dateBefore) {

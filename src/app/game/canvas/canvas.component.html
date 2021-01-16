@@ -51,7 +51,7 @@
     <button *ngIf="isEditable"(click)='fullscreen()' class="ml-1"
     mat-mini-fab color="primary" aria-label="Full screen" matTooltip="Full screen"
     matTooltipPosition="above" matTooltipClass="blue-tooltip"><mat-icon>fullscreen</mat-icon></button>
-    <form *ngIf="!isEditable && !gameOver" (ngSubmit)="newGuess()">
+    <form *ngIf="!isEditable && !gameOver && isPlaying" (ngSubmit)="newGuess()">
         <mat-form-field class="ml-4" appearance="legacy">
             <input matInput [formControl]="guessInput" placeholder=" Guess the word..">
             <mat-icon matSuffix>send</mat-icon>

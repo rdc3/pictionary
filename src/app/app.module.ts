@@ -48,6 +48,7 @@ import { DefaultPageComponent } from './game/default-page/default-page.component
 import { CanvasComponent } from './game/canvas/canvas.component';
 import { AngularFireStorageModule } from '@angular/fire/storage';
 import { UrlSerializer } from '@angular/router';
+import { PermissionErrorComponent } from './admin/permission-error/permission-error.component';
 
 
 const firebaseConfig = {
@@ -72,6 +73,7 @@ const firebaseConfig = {
     DefaultPageComponent,
     CanvasComponent,
     FormComponent,
+    PermissionErrorComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,7 +1,6 @@
 import { DataStoreService } from 'src/app/services/data-store.service';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { AuthService } from './services/auth.service';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-root',

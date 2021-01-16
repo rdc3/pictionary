@@ -32,10 +32,14 @@ export class FormComponent implements OnInit {
   constructor(
     private gameService: GameService,
     private fb: FormBuilder,
-    private dStoreS: DataStoreService
+    private dStoreS: DataStoreService,
+    private auth: AuthService
   ) {
     this.store = dStoreS;
-    this.dStoreS.gameInfo$.subscribe(val => this.gameInfo = val);
+    this.dStoreS.gameInfo$.subscribe(
+      (val) => this.gameInfo = val,
+      (err) => this.auth.analyzeError(err)
+    );
     this.playerSetup = this.fb.group({
       nickName: this.nickNameControl,
       maxPlayers: this.maxPlayersControl,

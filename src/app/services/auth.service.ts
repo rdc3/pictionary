@@ -49,9 +49,13 @@ export class AuthService {
     return user !== null;
   }
   async loginWithGoogle() {
-    await this.afAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-    localStorage.getItem('')
+    const result = await this.afAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
     this.router.navigate(['game']);
+  }
+  analyzeError(err: any) {
+    if (err && err.code === 'permission-denied') {
+      this.router.navigate(['access-denied']);
+    }
   }
 
 }

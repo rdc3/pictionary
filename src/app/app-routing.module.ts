@@ -1,3 +1,4 @@
+import { PermissionErrorComponent } from './admin/permission-error/permission-error.component';
 import { DefaultPageComponent } from './game/default-page/default-page.component';
 import { LoginComponent } from './admin/login/login.component';
 import { AddWordsComponent } from './admin/add-words/add-words.component';
@@ -18,6 +19,7 @@ const routes: Routes = [
   { path: 'game', component: DefaultPageComponent, ...canActivate(redirectUnauthorizedToLogin) },
   { path: 'login', component: LoginComponent, ...canActivate(redirectLoggedInToDefaultPage) },
   { path: 'addwords', component: AddWordsComponent, ...canActivate(adminOnly) },
+  { path: 'access-denied', component: PermissionErrorComponent },
 ];
 
 @NgModule({

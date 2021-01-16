@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { DbService } from './../services/db.service';
+import { AuthService } from './auth.service';
 import { DataStoreService } from './data-store.service';
 
 @Injectable({
@@ -10,14 +11,18 @@ import { DataStoreService } from './data-store.service';
 export class CanvasService {
 
 
-  constructor(private db: DbService, private dStoreS: DataStoreService) {
-    this.dStoreS.canvas$.subscribe(canvas => {
-      this.dStoreS.canvasDrawing = (canvas.drawing) ? canvas.drawing : this.dStoreS.defaultDrawing;
-    });
+  constructor(private db: DbService, private dStoreS: DataStoreService, private auth: AuthService) {
+    this.dStoreS.canvas$.subscribe(
+      (canvas) => {
+        this.dStoreS.canvasDrawing = (canvas.drawing) ? canvas.drawing : this.dStoreS.defaultDrawing;
+      },
+      (err) => this.auth.analyzeError(err)
+    );
   }
 
   startDrawing() {
     this.dStoreS.isDrawing = true;
+    this.dStoreS.canvas.artist = this.dStoreS.player.name;
     this.dStoreS.currentPath = [];
     this.dStoreS.canvasDrawing.lines.push({ points: this.dStoreS.currentPath, color: this.dStoreS.colorPicked$.value });
   }

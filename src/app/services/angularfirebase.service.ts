@@ -8,14 +8,15 @@ import {
   DocumentSnapshotDoesNotExist,
   DocumentSnapshotExists
 } from '@angular/fire/firestore';
-import { Observable, from } from 'rxjs';
+import { Observable, from, throwError } from 'rxjs';
 import {
   map,
   tap,
   take,
   mergeMap,
   expand,
-  takeWhile
+  takeWhile,
+  catchError
 } from 'rxjs/operators';
 
 import * as firebase from 'firebase/app';
@@ -64,7 +65,10 @@ export class AngularfirebaseService {
           ) => {
             return doc.payload.data() as T;
           }
-        )
+        ), catchError(err => {
+          console.log('Finally caught the error', err);
+          return throwError(err);
+        })
       );
   }
 
@@ -76,8 +80,11 @@ export class AngularfirebaseService {
           return docs.map((a: DocumentChangeAction<T>) =>
             a.payload.doc.data()
           ) as T[];
-        })
-      );
+        }), catchError(err => {
+          console.log('Finally caught the error', err);
+          return throwError(err);
+        }
+      ));
   }
 
   /// with Ids
