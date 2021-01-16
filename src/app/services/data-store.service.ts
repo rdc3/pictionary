@@ -30,7 +30,6 @@ export class DataStoreService {
   // TIME
   roundStartTime$: BehaviorSubject<number> = new BehaviorSubject(new Date().getTime());
   timeElapsed$: BehaviorSubject<number> = new BehaviorSubject(0);
-  // maxTime = 10;
   timeElapsed = 0;
   clientOffsetTime = 0;
 

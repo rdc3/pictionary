@@ -12,18 +12,12 @@ import { canActivate } from '@angular/fire/auth-guard';
 const adminOnly = () => hasCustomClaim('admin');
 const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['login']);
 const redirectLoggedInToDefaultPage = () => redirectLoggedInTo(['']);
-// const belongsToAccount = (next) => hasCustomClaim(`account-${next.params.id}`);
 
 const routes: Routes = [
-
   { path: '', component: DefaultPageComponent, ...canActivate(redirectUnauthorizedToLogin) },
   { path: 'game', component: DefaultPageComponent, ...canActivate(redirectUnauthorizedToLogin) },
   { path: 'login', component: LoginComponent, ...canActivate(redirectLoggedInToDefaultPage) },
   { path: 'addwords', component: AddWordsComponent, ...canActivate(adminOnly) },
-  // { path: 'register', component: RegisterComponent },
-  // { path: 'forgot-password', component: ForgotPasswordComponent },
-  // { path: 'verify-email', component: VerifyEmailComponent }
-
 ];
 
 @NgModule({

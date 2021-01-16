@@ -156,14 +156,10 @@ export class CanvasComponent implements OnInit, OnDestroy {
       }
       if (p.mouseIsPressed) {
         if (p.mouseButton === p.LEFT) {
-
-          // p.line(p.mouseX, p.mouseY, p.pmouseX, p.pmouseY);
           if (this.dStoreS.isDrawing) {
             let point: Point = null;
             if (!(p.mouseX < this.colorWheel.width && p.mouseY < this.colorWheel.height) && this.isEditable) {
               point = {
-                // x: p.mouseX,
-                // y: p.mouseY
                 x: p.map(p.mouseX, 0, this.canvasWidth, 0, 100),
                 y: p.map(p.mouseY, 0, this.canvasWidth, 0, 100)
               };
@@ -217,7 +213,6 @@ export class CanvasComponent implements OnInit, OnDestroy {
         p.text('Rank', 20, 30);
         p.text('Score', 80, 30);
         p.text('Player', 140, 30);
-        // p.fill(0, 255, 50);
         p.textSize(22);
         for (let i = 0; i < sP.length; i++) {
           p.text(i + 1, 35, 60 + i * 30);

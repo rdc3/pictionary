@@ -3,7 +3,6 @@
 
 html, body { 
     height: 100%; 
-    // overflow: hidden;
 }
 body { margin: 0; font-family: "Redressed", Roboto, "Helvetica Neue", sans-serif;  }
 .outer-container.mat-card{
@@ -35,10 +34,6 @@ body { margin: 0; font-family: "Redressed", Roboto, "Helvetica Neue", sans-serif
     .mat-form-field-infix{
         padding: 0.5em 0 0.5em 0 !important;
     }
-    // .mat-card,.mat-form-field, .mat-table, .mat-header-cell, .mat-input-element  {
-    //     font-size: large !important;
-    //     padding: 0.5em 0 0.5em 0 !important;
-    // }
     .hide-overflow {
         overflow: hidden;
     }

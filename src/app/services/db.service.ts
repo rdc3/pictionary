@@ -49,13 +49,7 @@ export class DbService {
       this.dStoreS.roundInfo = val;
       if (this.dStoreS.roundInfo.roundNumber !== val.roundNumber) {
         this.dStoreS.timeElapsed$.next(0);
-      } else {
-        // console.log('this.dStoreS.timeElapsed$:', this.dStoreS.timeElapsed$.value);
-        // console.log('this.dStoreS.timeElapsed:', this.dStoreS.timeElapsed);
-        // console.log('updated time:', this.calculateDiff(new Date(val['updatedAt'].toMillis())));
-        // console.log('updated time:', new Date(val['updatedAt'].toMillis()));
-        // console.log('updated time:', new Date());
-      }
+      } 
       if (val.startedAt !== this.dStoreS.roundStartTime$.value) {
         this.dStoreS.roundStartTime$.next(val.startedAt);
       }
@@ -122,7 +116,6 @@ export class DbService {
     } else {
       dateBefore = new Date(dateBefore);
     }
-    // console.log('1dateAfter, dateBefore:', dateAfter, dateBefore);
     dateAfter = new Date(dateAfter);
     const diff = Math.round((
       Date.UTC(dateBefore.getFullYear(), dateBefore.getMonth(), dateBefore.getDate(),
@@ -130,7 +123,6 @@ export class DbService {
       Date.UTC(dateAfter.getFullYear(), dateAfter.getMonth(), dateAfter.getDate(),
         dateAfter.getHours(), dateAfter.getMinutes(), dateAfter.getSeconds())
     ) / 1000);
-    // console.log('diff:', diff);
     return diff;
   }
 }

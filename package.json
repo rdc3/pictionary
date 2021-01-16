@@ -1,10 +1,12 @@
 {
   "name": "pictionary",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --host 0.0.0.0",
     "build": "ng build",
+    "prod-build": "ng build --prod=true --outputPath=docs --baseHref=Pictionary && npm run create404page",
+    "create404page": "ncp docs/index.html docs/404.html",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
@@ -48,6 +50,7 @@
     "karma-coverage-istanbul-reporter": "~3.0.2",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
+    "ncp": "^2.0.0",
     "protractor": "~7.0.0",
     "ts-node": "^9.1.1",
     "tslint": "~6.1.0",

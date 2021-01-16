@@ -14,7 +14,6 @@ export class CanvasService {
     this.dStoreS.canvas$.subscribe(canvas => {
       this.dStoreS.canvasDrawing = (canvas.drawing) ? canvas.drawing : this.dStoreS.defaultDrawing;
     });
-    // this.dStoreS.playerId = '1'; //this.gameService.player.id
   }
 
   startDrawing() {
@@ -29,13 +28,11 @@ export class CanvasService {
   }
 
   clearCanvas() {
-    // console.log('Clearing canvas');
     this.dStoreS.canvasDrawing.lines = [];
     this.saveDrawing();
   }
 
   private saveDrawing() {
-    // console.log('saving:', this.dStoreS.canvasDrawing);
     this.dStoreS.canvas.drawing = this.dStoreS.canvasDrawing;
     this.db.updateCanvas();
   }
@@ -43,7 +40,6 @@ export class CanvasService {
   newGuess(guessedWord: string) {
     if (!(this.dStoreS.canvas.guessedWords && this.dStoreS.canvas.guessedWords.length > 0 &&
       this.dStoreS.canvas.guessedWords.find(w => w.word === guessedWord))) {
-
       this.dStoreS.canvas.guessedWords.push({ byId: this.dStoreS.player.id, byName: this.dStoreS.player.name, word: guessedWord });
       this.db.updateCanvas();
     }

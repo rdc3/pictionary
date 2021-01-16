@@ -62,7 +62,6 @@ const firebaseConfig = {
     BrowserModule,
     AppRoutingModule,
     AngularFireModule.initializeApp(firebaseConfig),
-    // AngularFireAuthGuard,
     AngularFireAuthModule,
     AngularFirestoreModule,
     AngularFireStorageModule,

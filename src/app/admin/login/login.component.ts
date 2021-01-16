@@ -11,15 +11,16 @@ export class LoginComponent implements OnInit {
 
   user: firebase.User;
   constructor(private authService: AuthService) {
-    this.authService.getUser().subscribe (user => this.user = user);
+    this.authService.getUser().subscribe(user => this.user = user);
   }
-  
+
   ngOnInit() {
-    // console.log(this.user)
   }
+
   login() {
     this.authService.loginWithGoogle();
   }
+
   logout() {
     this.authService.logout();
   }
