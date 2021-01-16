@@ -1,3 +1,4 @@
+import { LowerCaseUrlSerializerService } from './services/lower-case-url-serializer.service';
 import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -22,7 +23,20 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AppRoutingModule } from './app-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormComponent } from './game/form/form.component';
-import { BreakPointRegistry, FlexLayoutModule, FlexOrderStyleBuilder, FlexStyleBuilder, LayoutAlignStyleBuilder, LayoutStyleBuilder, MediaMarshaller, PrintHook, ShowHideStyleBuilder, StylesheetMap, StyleUtils, ɵMatchMedia } from '@angular/flex-layout';
+import {
+  BreakPointRegistry,
+  FlexLayoutModule,
+  FlexOrderStyleBuilder,
+  FlexStyleBuilder,
+  LayoutAlignStyleBuilder,
+  LayoutStyleBuilder,
+  MediaMarshaller,
+  PrintHook,
+  ShowHideStyleBuilder,
+  StylesheetMap,
+  StyleUtils,
+  ɵMatchMedia
+} from '@angular/flex-layout';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './admin/login/login.component';
@@ -33,6 +47,7 @@ import { AddWordsComponent } from './admin/add-words/add-words.component';
 import { DefaultPageComponent } from './game/default-page/default-page.component';
 import { CanvasComponent } from './game/canvas/canvas.component';
 import { AngularFireStorageModule } from '@angular/fire/storage';
+import { UrlSerializer } from '@angular/router';
 
 
 const firebaseConfig = {
@@ -87,7 +102,11 @@ const firebaseConfig = {
   providers: [
     AngularFireAuthGuard,
     StyleUtils, StylesheetMap, MediaMarshaller, ɵMatchMedia, LayoutAlignStyleBuilder,
-    BreakPointRegistry, PrintHook, LayoutStyleBuilder, FlexStyleBuilder, ShowHideStyleBuilder, FlexOrderStyleBuilder
+    BreakPointRegistry, PrintHook, LayoutStyleBuilder, FlexStyleBuilder, ShowHideStyleBuilder, FlexOrderStyleBuilder,
+    {
+        provide: UrlSerializer,
+        useClass: LowerCaseUrlSerializerService
+    }
   ],
   bootstrap: [AppComponent]
 })
