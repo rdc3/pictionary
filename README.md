@@ -14,5 +14,5 @@ Run `npm start` for a dev server. Navigate to `http://127.0.0.1:4200/`. The app 
 
 ## Demo
 
-[Pictionary](https://rdc3.github.io/Pictionary/).
+[Pictionary](https://rdc3.github.io/pictionary/).
 
